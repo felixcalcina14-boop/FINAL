@@ -65,18 +65,18 @@ st.markdown(f"""
 # DATOS ESTRUCTURALES DEL TORNEO
 # =====================
 grupos = {
-    "a": ["México", "Corea del Sur", "Sudáfrica", "República checa"],
-    "b": ["Canadá", "Qatar", "Suiza", "Bosnia y Herzegovina"],
-    "c": ["Brasil", "Marruecos", "Haití", "Escocia"],
-    "d": ["Estados Unidos", "Paraguay", "Australia", "Turquía"],
+    "a": ["Mexico", "Corea del Sur", "Sudafrica", "Republica Checa"],
+    "b": ["Canada", "Qatar", "Suiza", "Bosnia y Herzegovina"],
+    "c": ["Brasil", "Marruecos", "Haiti", "Escocia"],
+    "d": ["Estados Unidos", "Paraguay", "Australia", "Turquia"],
     "e": ["Alemania", "Curazao", "Costa de Marfil", "Ecuador"],
-    "f": ["Países Bajos", "Japón", "Suecia", "Túnez"],
-    "g": ["Bélgica", "Egipto", "Irán", "Nueva Zelanda"],
-    "h": ["España", "Cabo Verde", "Arabia Saudita", "Uruguay"],
+    "f": ["Paises Bajos", "Japon", "Suecia", "Tunez"],
+    "g": ["Belgica", "Egipto", "Iran", "Nueva Zelanda"],
+    "h": ["Espana", "Cabo Verde", "Arabia Saudita", "Uruguay"],
     "i": ["Francia", "Senegal", "Irak", "Noruega"],
     "j": ["Argentina", "Argelia", "Austria", "Jordania"],
-    "k": ["Portugal", "RD Congo", "Uzbekistán", "Colombia"],
-    "l": ["Inglaterra", "Croacia", "Ghana", "Panamá"]
+    "k": ["Portugal", "RD Congo", "Uzbekistan", "Colombia"],
+    "l": ["Inglaterra", "Croacia", "Ghana", "Panama"]
 }
 
 estructura_16 = [
