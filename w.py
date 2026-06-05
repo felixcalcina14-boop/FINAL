@@ -7,35 +7,60 @@ import random
 # =====================
 st.set_page_config(page_title="Polla Mundial 2026", page_icon="🏆", layout="centered")
 
-# Inyección de CSS para customizar las tarjetas de los partidos, botones y fuentes
 st.markdown("""
     <style>
     .main { background-color: #0e1117; }
     h1 { color: #FFD700; text-align: center; font-weight: 800; text-shadow: 2px 2px 4px #000000; }
     h2 { color: #10B981; border-bottom: 2px solid #10B981; padding-bottom: 5px; margin-top: 30px; }
     h3 { color: #F59E0B; }
-    .partido-card {
+    .partido-header {
         background-color: #1e293b;
-        padding: 15px;
-        border-radius: 12px;
+        padding: 10px 15px;
+        border-radius: 8px 8px 0 0;
         border-left: 5px solid #10B981;
-        margin-bottom: 15px;
+        margin-top: 15px;
+        font-weight: bold;
+    }
+    .partido-body {
+        background-color: #0f172a;
+        padding: 15px;
+        border-radius: 0 0 8px 8px;
+        border-left: 5px solid #10B981;
+        margin-bottom: 20px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
-    .stRadio > div { background-color: transparent; padding: 5px; }
     div.stButton > button:first-child {
         background-color: #10B981; color: white; font-weight: bold;
         border-radius: 8px; border: none; padding: 10px 24px;
-        transition: all 0.3s ease; width: 100%;
+        transition: all 0.3s ease; width: 100%; margin-top: 20px;
     }
     div.stButton > button:first-child:hover {
-        background-color: #059669; transform: scale(1.02);
+        background-color: #059669; transform: scale(1.01);
     }
     </style>
     """, unsafe_allow_html=True)
 
 # =====================
-# DATOS DEL MUNDIAL INTEGRADOS
+# DICCIONARIO GLOBAL DE BANDERAS
+# =====================
+banderas = {
+    "México": "🇲🇽", "Corea del Sur": "🇰🇷", "Sudáfrica": "🇿🇦", "República checa": "🇨🇿",
+    "Canadá": "🇨🇦", "Qatar": "🇶🇦", "Suiza": "🇨🇭", "Bosnia y Herzegovina": "🇧🇦",
+    "Brasil": "🇧🇷", "Marruecos": "🇲🇦", "Haití": "🇭🇹", "Escocia": "🏴\u200d󠁧\u200b󠁢\u200b󠁳\u200b󠁣\u200b󠁴\u200b󠁿",
+    "Estados Unidos": "🇺🇸", "Paraguay": "🇵🇾", "Australia": "🇦🇺", "Turquía": "🇹🇷",
+    "Alemania": "🇩🇪", "Curazao": "🇨🇼", "Costa de Marfil": "🇨🇮", "Ecuador": "🇪🇨",
+    "Países Bajos": "🇳🇱", "Japón": "🇯🇵", "Suecia": "🇸🇪", "Túnez": "🇹🇳",
+    "Bélgica": "🇧🇪", "Egipto": "🇪🇬", "Irán": "🇮🇷", "Nueva Zelanda": "🇳🇿",
+    "España": "🇪🇸", "Cabo Verde": "🇨🇻", "Arabia Saudita": "🇸🇦", "Uruguay": "🇺🇾",
+    "Francia": "🇫🇷", "Senegal": "🇸🇳", "Irak": "🇮🇶", "Noruega": "🇳🇴",
+    "Argentina": "🇦🇷", "Argelia": "🇩🇿", "Austria": "🇦🇹", "Jordania": "🇯🇴",
+    "Portugal": "🇵🇹", "RD Congo": "🇨🇩", "Uzbekistán": "🇺🇿", "Colombia": "🇨🇴",
+    "Inglaterra": "🏴\u200d󠁧\u200b󠁢\u200b󠁥\u200b󠁮\u200b󠁧\u200b󠁿", "Croacia": "🇭🇷", "Ghana": "🇬🇭", "Panamá": "🇵🇦",
+    "Por definir": "🏳️"
+}
+
+# =====================
+# DATOS ESTRUCTURALES DEL TORNEO
 # =====================
 grupos = {
     "a": ["México", "Corea del Sur", "Sudáfrica", "República checa"],
@@ -87,7 +112,7 @@ if "usuario" not in st.session_state:
     st.session_state.usuario = ""
 
 if st.session_state.usuario == "":
-    st.markdown("<div class='partido-card'>", unsafe_allow_html=True)
+    st.markdown("<div class='partido-body'>", unsafe_allow_html=True)
     st.subheader("📝 Registro de Jugador")
     nombre = st.text_input("Introduce tu nombre o apodo para el fixture:")
     if st.button("🚀 Comenzar Desafío"):
@@ -100,9 +125,7 @@ if st.session_state.usuario == "":
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
-# =====================
-# CONFIGURACIÓN DE MEMORIAS
-# =====================
+# Inicializaciones de estados de sesión
 if "ganadores_16" not in st.session_state: st.session_state.ganadores_16 = {}
 if "ganadores_8" not in st.session_state: st.session_state.ganadores_8 = {}
 if "ganadores_4" not in st.session_state: st.session_state.ganadores_4 = {}
@@ -110,7 +133,7 @@ if "ganadores_2" not in st.session_state: st.session_state.ganadores_2 = {}
 if "ganador_final" not in st.session_state: st.session_state.ganador_final = ""
 if "orden_terceros" not in st.session_state: st.session_state.orden_terceros = []
 
-# BARRA LATERAL ESTILIZADA
+# BARRA LATERAL
 st.sidebar.markdown(f"### 👤 Jugador: `{st.session_state.usuario}`")
 st.sidebar.markdown("---")
 st.sidebar.subheader("🗺️ Menú del Torneo")
@@ -119,14 +142,11 @@ lista_fases = ["Grupos", "16avos de Final", "Octavos de Final", "Cuartos de Fina
 fase_seleccionada = st.sidebar.radio("Saltar directamente a:", lista_fases, index=lista_fases.index(st.session_state.fase))
 st.session_state.fase = fase_seleccionada
 
-# Mostrar estado de avance en barra lateral
 st.sidebar.markdown("---")
 st.sidebar.subheader("📊 Tu Progreso")
 st.sidebar.metric(label="Fase Actual", value=st.session_state.fase)
 
-# =====================
-# CÁLCULOS DINÁMICOS
-# =====================
+# Cálculos encadenados en caliente
 if "clasificados" in st.session_state and "mejores_terceros" in st.session_state:
     if not st.session_state.orden_terceros or len(st.session_state.orden_terceros) != len(st.session_state.mejores_terceros):
         st.session_state.orden_terceros = st.session_state.mejores_terceros.copy()
@@ -145,7 +165,7 @@ if "clasificados" in st.session_state and st.session_state.orden_terceros:
         llaves_16_calculadas.append({"llave": item["llave"], "a": eq_a, "b": eq_b})
 
 # =====================
-# RENDERIZADO DE FASES CON DISEÑO
+# INTERFAZ LÓGICA DE FASES
 # =====================
 
 # --- FASE GRUPOS ---
@@ -154,15 +174,13 @@ if st.session_state.fase == "Grupos":
     clasificados = {}
     terceros_pool = []
 
-    # Uso de columnas de Streamlit para poner 2 grupos por fila y ahorrar espacio
     col1, col2 = st.columns(2)
-    
     for idx, (g, equipos) in enumerate(grupos.items()):
         target_col = col1 if idx % 2 == 0 else col2
         with target_col:
-            st.markdown(f"<div class='partido-card'><h3>Grupo {g.upper()}</h3>", unsafe_allow_html=True)
-            primero = st.selectbox(f"1° Puesto", equipos, key=f"p_{g}")
-            segundo = st.selectbox(f"2° Puesto", [e for e in equipos if e != primero], key=f"s_{g}")
+            st.markdown(f"<div class='partido-header'>Grupo {g.upper()}</div><div class='partido-body'>", unsafe_allow_html=True)
+            primero = st.selectbox(f"1° puesto", equipos, key=f"p_{g}")
+            segundo = st.selectbox(f"2° puesto", [e for e in equipos if e != primero], key=f"s_{g}")
             st.markdown("</div>", unsafe_allow_html=True)
             
             clasificados[f"1{g}"] = primero
@@ -173,7 +191,6 @@ if st.session_state.fase == "Grupos":
     st.session_state.terceros_pool = terceros_pool
 
     st.header("🏅 Selección de los 8 Mejores Terceros")
-    st.info("Selecciona qué terceros avanzan a la ronda eliminatoria sin repetir grupos originales.")
     mapa_grupo = {e: g for g, eqs in grupos.items() for e in eqs if e in terceros_pool}
     seleccionados = []
 
@@ -184,14 +201,12 @@ if st.session_state.fase == "Grupos":
             usados_grupos = [mapa_grupo[e] for e in seleccionados]
             opciones = [e for e in terceros_pool if e not in seleccionados and mapa_grupo[e] not in usados_grupos]
             if opciones:
-                st.markdown("<div class='partido-card'>", unsafe_allow_html=True)
-                elegido = st.selectbox(f"Cupo Tercero {i+1}", opciones, key=f"t{i}")
+                st.markdown(f"<div class='partido-header'>Cupo Tercero {i+1}</div><div class='partido-body'>", unsafe_allow_html=True)
+                elegido = st.selectbox(f"Seleccionar", opciones, key=f"t{i}")
                 seleccionados.append(elegido)
                 st.markdown("</div>", unsafe_allow_html=True)
 
     st.session_state.mejores_terceros = seleccionados
-    
-    st.markdown("<br>", unsafe_allow_html=True)
     if st.button("Siguiente: 16avos de Final ➡️"):
         st.session_state.fase = "16avos de Final"
         st.rerun()
@@ -202,14 +217,37 @@ elif st.session_state.fase == "16avos de Final":
     if not llaves_16_calculadas:
         st.warning("⚠️ Primero debes completar la clasificación de la Fase de Grupos.")
     else:
+        banderas = {
+            "México": "🇲🇽", "Corea del Sur": "🇰🇷", "Sudáfrica": "🇿🇦", "República checa": "🇨🇿",
+            "Canadá": "🇨🇦", "Qatar": "🇶🇦", "Suiza": "🇨🇭", "Bosnia y Herzegovina": "🇧🇦",
+            "Brasil": "🇧🇷", "Marruecos": "🇲🇦", "Haití": "🇭🇹", "Escocia": "🏴\n",
+            "Estados Unidos": "🇺🇸", "Paraguay": "🇵🇾", "Australia": "🇦🇺", "Turquía": "🇹🇷",
+            "Alemania": "🇩🇪", "Curazao": "🇨🇼", "Costa de Marfil": "🇨🇮", "Ecuador": "🇪🇨",
+            "Países Bajos": "🇳🇱", "Japón": "🇯🇵", "Suecia": "🇸🇪", "Túnez": "🇹🇳",
+            "Bélgica": "🇧🇪", "Egipto": "🇪🇬", "Irán": "🇮🇷", "Nueva Zelanda": "🇳🇿",
+            "España": "🇪🇸", "Cabo Verde": "🇨🇻", "Arabia Saudita": "🇸🇦", "Uruguay": "🇺🇾",
+            "Francia": "🇫🇷", "Senegal": "🇸🇳", "Irak": "🇮🇶", "Noruega": "🇳🇴",
+            "Argentina": "🇦🇷", "Argelia": "🇩🇿", "Austria": "🇦🇹", "Jordania": "🇯🇴",
+            "Portugal": "🇵🇹", "RD Congo": "🇨🇩", "Uzbekistán": "🇺🇿", "Colombia": "🇨🇴",
+            "Inglaterra": "🏴\n", "Croacia": "🇭🇷", "Ghana": "🇬🇭", "Panamá": "🇵🇦",
+            "Por definir": "🏳️"
+        }
+
         for p in llaves_16_calculadas:
             st.markdown("<div class='partido-card'>", unsafe_allow_html=True)
-            opciones = [p["a"], p["b"]]
-            idx = 0
-            if p['llave'] in st.session_state.ganadores_16 and st.session_state.ganadores_16[p['llave']] in opciones:
-                idx = opciones.index(st.session_state.ganadores_16[p['llave']])
+            flag_a = banderas.get(p["a"], "🏳️")
+            flag_b = banderas.get(p["b"], "🏳️")
             
-            ganador = st.radio(f"¿Quién avanza?", opciones, index=idx, key=f"radio_16_{p['llave']}_{p['a']}_{p['b']}")
+            ganador_actual = st.session_state.ganadores_16.get(p['llave'], "Por definir")
+            flag_ganador = banderas.get(ganador_actual, "🏳️")
+            
+            st.markdown(f"**⚔️ {flag_a} {p['a']} vs {p['b']} {flag_b}**")
+            st.markdown(f"🔹 *Seleccionado:* {flag_ganador} {ganador_actual}")
+            
+            opciones = [p["a"], p["b"]]
+            idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
+            
+            ganador = st.radio("¿Quién avanza?", opciones, index=idx, key=f"radio_16_{p['llave']}_{p['a']}_{p['b']}")
             st.session_state.ganadores_16[p["llave"]] = ganador
             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -223,17 +261,40 @@ elif st.session_state.fase == "Octavos de Final":
     if not st.session_state.ganadores_16:
         st.warning("⚠️ Primero debes definir los ganadores en los 16avos de Final.")
     else:
+        banderas = {
+            "México": "🇲🇽", "Corea del Sur": "🇰🇷", "Sudáfrica": "🇿🇦", "República checa": "🇨🇿",
+            "Canadá": "🇨🇦", "Qatar": "🇶🇦", "Suiza": "🇨🇭", "Bosnia y Herzegovina": "🇧🇦",
+            "Brasil": "🇧🇷", "Marruecos": "🇲🇦", "Haití": "🇭🇹", "Escocia": "🏴\n",
+            "Estados Unidos": "🇺🇸", "Paraguay": "🇵🇾", "Australia": "🇦🇺", "Turquía": "🇹🇷",
+            "Alemania": "🇩🇪", "Curazao": "🇨🇼", "Costa de Marfil": "🇨🇮", "Ecuador": "🇪🇨",
+            "Países Bajos": "🇳🇱", "Japón": "🇯🇵", "Suecia": "🇸🇪", "Túnez": "🇹🇳",
+            "Bélgica": "🇧🇪", "Egipto": "🇪🇬", "Irán": "🇮🇷", "Nueva Zelanda": "🇳🇿",
+            "España": "🇪🇸", "Cabo Verde": "🇨🇻", "Arabia Saudita": "🇸🇦", "Uruguay": "🇺🇾",
+            "Francia": "🇫🇷", "Senegal": "🇸🇳", "Irak": "🇮🇶", "Noruega": "🇳🇴",
+            "Argentina": "🇦🇷", "Argelia": "🇩🇿", "Austria": "🇦🇹", "Jordania": "🇯🇴",
+            "Portugal": "🇵🇹", "RD Congo": "🇨🇩", "Uzbekistán": "🇺🇿", "Colombia": "🇨🇴",
+            "Inglaterra": "🏴\n", "Croacia": "🇭🇷", "Ghana": "🇬🇭", "Panamá": "🇵🇦",
+            "Por definir": "🏳️"
+        }
+
         for item in estructura_8:
             st.markdown("<div class='partido-card'>", unsafe_allow_html=True)
             eq_a = st.session_state.ganadores_16.get(item["a"], "Por definir")
             eq_b = st.session_state.ganadores_16.get(item["b"], "Por definir")
             
+            flag_a = banderas.get(eq_a, "🏳️")
+            flag_b = banderas.get(eq_b, "🏳️")
+            
+            ganador_actual = st.session_state.ganadores_8.get(item['llave'], "Por definir")
+            flag_ganador = banderas.get(ganador_actual, "🏳️")
+            
+            st.markdown(f"**⚔️ {flag_a} {eq_a} vs {eq_b} {flag_b}**")
+            st.markdown(f"🔹 *Seleccionado:* {flag_ganador} {ganador_actual}")
+            
             opciones = [eq_a, eq_b]
-            idx = 0
-            if item['llave'] in st.session_state.ganadores_8 and st.session_state.ganadores_8[item['llave']] in opciones:
-                idx = opciones.index(st.session_state.ganadores_8[item['llave']])
-
-            ganador = st.radio(f"¿Quién pasa a Cuartos?", opciones, index=idx, key=f"radio_8_{item['llave']}_{eq_a}_{eq_b}")
+            idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
+            
+            ganador = st.radio("¿Quién pasa a Cuartos?", opciones, index=idx, key=f"radio_8_{item['llave']}_{eq_a}_{eq_b}")
             st.session_state.ganadores_8[item["llave"]] = ganador
             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -247,17 +308,40 @@ elif st.session_state.fase == "Cuartos de Final":
     if not st.session_state.ganadores_8:
         st.warning("⚠️ Primero debes definir los ganadores en los Octavos de Final.")
     else:
+        banderas = {
+            "México": "🇲🇽", "Corea del Sur": "🇰🇷", "Sudáfrica": "🇿🇦", "República checa": "🇨🇿",
+            "Canadá": "🇨🇦", "Qatar": "🇶🇦", "Suiza": "🇨🇭", "Bosnia y Herzegovina": "🇧🇦",
+            "Brasil": "🇧🇷", "Marruecos": "🇲🇦", "Haití": "🇭🇹", "Escocia": "🏴\n",
+            "Estados Unidos": "🇺🇸", "Paraguay": "🇵🇾", "Australia": "🇦🇺", "Turquía": "🇹🇷",
+            "Alemania": "🇩🇪", "Curazao": "🇨🇼", "Costa de Marfil": "🇨🇮", "Ecuador": "🇪🇨",
+            "Países Bajos": "🇳🇱", "Japón": "🇯🇵", "Suecia": "🇸🇪", "Túnez": "🇹🇳",
+            "Bélgica": "🇧🇪", "Egipto": "🇪🇬", "Irán": "🇮🇷", "Nueva Zelanda": "🇳🇿",
+            "España": "🇪🇸", "Cabo Verde": "🇨🇻", "Arabia Saudita": "🇸🇦", "Uruguay": "🇺🇾",
+            "Francia": "🇫🇷", "Senegal": "🇸🇳", "Irak": "🇮🇶", "Noruega": "🇳🇴",
+            "Argentina": "🇦🇷", "Argelia": "🇩🇿", "Austria": "🇦🇹", "Jordania": "🇯🇴",
+            "Portugal": "🇵🇹", "RD Congo": "🇨🇩", "Uzbekistán": "🇺🇿", "Colombia": "🇨🇴",
+            "Inglaterra": "🏴\n", "Croacia": "🇭🇷", "Ghana": "🇬🇭", "Panamá": "🇵🇦",
+            "Por definir": "🏳️"
+        }
+
         for item in estructura_4:
             st.markdown("<div class='partido-card'>", unsafe_allow_html=True)
             eq_a = st.session_state.ganadores_8.get(item["a"], "Por definir")
             eq_b = st.session_state.ganadores_8.get(item["b"], "Por definir")
             
+            flag_a = banderas.get(eq_a, "🏳️")
+            flag_b = banderas.get(eq_b, "🏳️")
+            
+            ganador_actual = st.session_state.ganadores_4.get(item['llave'], "Por definir")
+            flag_ganador = banderas.get(ganador_actual, "🏳️")
+            
+            st.markdown(f"**⚔️ {flag_a} {eq_a} vs {eq_b} {flag_b}**")
+            st.markdown(f"🔹 *Seleccionado:* {flag_ganador} {ganador_actual}")
+            
             opciones = [eq_a, eq_b]
-            idx = 0
-            if item['llave'] in st.session_state.ganadores_4 and st.session_state.ganadores_4[item['llave']] in opciones:
-                idx = opciones.index(st.session_state.ganadores_4[item['llave']])
-
-            ganador = st.radio(f"¿Quién clasifica a la Semifinal?", opciones, index=idx, key=f"radio_4_{item['llave']}_{eq_a}_{eq_b}")
+            idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
+            
+            ganador = st.radio("¿Quién clasifica a la Semifinal?", opciones, index=idx, key=f"radio_4_{item['llave']}_{eq_a}_{eq_b}")
             st.session_state.ganadores_4[item["llave"]] = ganador
             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -271,17 +355,39 @@ elif st.session_state.fase == "Semifinales":
     if not st.session_state.ganadores_4:
         st.warning("⚠️ Primero debes definir los ganadores en los Cuartos de Final.")
     else:
+        banderas = {
+            "México": "🇲🇽", "Corea del Sur": "🇰🇷", "Sudáfrica": "🇿🇦", "República checa": "🇨🇿",
+            "Canadá": "🇨🇦", "Qatar": "🇶🇦", "Suiza": "🇨🇭", "Bosnia y Herzegovina": "🇧🇦",
+            "Brasil": "🇧🇷", "Marruecos": "🇲🇦", "Haití": "🇭🇹", "Escocia": "🏴\n",
+            "Estados Unidos": "🇺🇸", "Paraguay": "🇵🇾", "Australia": "🇦🇺", "Turquía": "🇹🇷",
+            "Alemania": "🇩🇪", "Curazao": "🇨🇼", "Costa de Marfil": "🇨🇮", "Ecuador": "🇪🇨",
+            "Países Bajos": "🇳🇱", "Japón": "🇯🇵", "Suecia": "🇸🇪", "Túnez": "🇹🇳",
+            "Bélgica": "🇧🇪", "Egipto": "🇪🇬", "Irán": "🇮🇷", "Nueva Zelanda": "🇳🇿",
+            "España": "🇪🇸", "Cabo Verde": "🇨🇻", "Arabia Saudita": "🇸🇦", "Uruguay": "🇺🇾",
+            "Francia": "🇫🇷", "Senegal": "🇸🇳", "Irak": "🇮🇶", "Noruega": "🇳🇴",
+            "Argentina": "🇦🇷", "Argelia": "🇩🇿", "Austria": "🇦🇹", "Jordania": "🇯🇴",
+            "Portugal": "🇵🇹", "RD Congo": "🇨🇩", "Uzbekistán": "🇺🇿", "Colombia": "🇨🇴",
+            "Inglaterra": "🏴\n", "Croacia": "🇭🇷", "Ghana": "🇬🇭", "Panamá": "🇵🇦",
+            "Por definir": "🏳️"
+        }
+
         for item in estructura_2:
             st.markdown("<div class='partido-card'>", unsafe_allow_html=True)
             eq_a = st.session_state.ganadores_4.get(item["a"], "Por definir")
             eq_b = st.session_state.ganadores_4.get(item["b"], "Por definir")
             
-            opciones = [eq_a, eq_b]
-            idx = 0
-            if item['llave'] in st.session_state.ganadores_2 and st.session_state.ganadores_2[item['llave']] in opciones:
-                idx = opciones.index(st.session_state.ganadores_2[item['llave']])
-
-            ganador = st.radio(f"¿Quién avanza a la Gran Final?", opciones, index=idx, key=f"radio_2_{item['llave']}_{eq_a}_{eq_b}")
+            flag_a = banderas.get(eq_a, "🏳️")
+            flag_b = banderas.get(eq_b, "🏳️")
+            
+            ganador_actual = st.session_state.ganadores_2.get(item['llave'], "Por definir")
+            flag_ganador = banderas.get(ganador_actual, "🏳️")
+            
+            st.markdown(f"**⚔️ {flag_a} {eq_a} vs {eq_b} {flag_b}**")
+            st.markdown(f"🔹 *Seleccionado:* {flag_ganador} {ganador_actual}")
+ opciones = [eq_a, eq_b]
+            idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
+            
+            ganador = st.radio("¿Quién avanza a la Gran Final?", opciones, index=idx, key=f"radio_2_{item['llave']}_{eq_a}_{eq_b}")
             st.session_state.ganadores_2[item["llave"]] = ganador
             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -295,16 +401,39 @@ elif st.session_state.fase == "Gran Final":
     if not st.session_state.ganadores_2:
         st.warning("⚠️ Primero debes definir los ganadores en las Semifinales.")
     else:
+        banderas = {
+            "México": "🇲🇽", "Corea del Sur": "🇰🇷", "Sudáfrica": "🇿🇦", "República checa": "🇨🇿",
+            "Canadá": "🇨🇦", "Qatar": "🇶🇦", "Suiza": "🇨🇭", "Bosnia y Herzegovina": "🇧🇦",
+            "Brasil": "🇧🇷", "Marruecos": "🇲🇦", "Haití": "🇭🇹", "Escocia": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+            "Estados Unidos": "🇺🇸", "Paraguay": "🇵🇾", "Australia": "🇦🇺", "Turquía": "🇹🇷",
+            "Alemania": "🇩🇪", "Curazao": "🇨🇼", "Costa de Marfil": "🇨🇮", "Ecuador": "🇪🇨",
+            "Países Bajos": "🇳🇱", "Japón": "🇯🇵", "Suecia": "🇸🇪", "Túnez": "🇹🇳",
+            "Bélgica": "🇧🇪", "Egipto": "🇪🇬", "Irán": "🇮🇷", "Nueva Zelanda": "🇳🇿",
+            "España": "🇪🇸", "Cabo Verde": "🇨🇻", "Arabia Saudita": "🇸🇦", "Uruguay": "🇺🇾",
+            "Francia": "🇫🇷", "Senegal": "🇸🇳", "Irak": "🇮🇶", "Noruega": "🇳🇴",
+            "Argentina": "🇦🇷", "Argelia": "🇩🇿", "Austria": "🇦🇹", "Jordania": "🇯🇴",
+            "Portugal": "🇵🇹", "RD Congo": "🇨🇩", "Uzbekistán": "🇺🇿", "Colombia": "🇨🇴",
+            "Inglaterra": "🏴\n", "Croacia": "🇭🇷", "Ghana": "🇬🇭", "Panamá": "🇵🇦",
+            "Por definir": "🏳️"
+        }
+
         eq_a = st.session_state.ganadores_2.get("d29", "Por definir")
         eq_b = st.session_state.ganadores_2.get("d30", "Por definir")
         
         st.markdown("<div class='partido-card' style='border-left: 5px solid #FFD700;'>", unsafe_allow_html=True)
+        flag_a = banderas.get(eq_a, "🏳️")
+        flag_b = banderas.get(eq_b, "🏳️")
+        
+        ganador_actual = st.session_state.ganador_final
+        flag_ganador = banderas.get(ganador_actual, "🏳️")
+        
+        st.markdown(f"🏆 **{flag_a} {eq_a} vs {eq_b} {flag_b}**")
+        st.markdown(f"🔹 *Seleccionado:* {flag_ganador} {ganador_actual}")
+        
         opciones = [eq_a, eq_b]
-        idx = 0
-        if st.session_state.ganador_final in opciones:
-            idx = opciones.index(st.session_state.ganador_final)
-
-        ganador_final = st.radio(f"Elige al Campeón del Mundo 2026:", opciones, index=idx, key=f"radio_final_{eq_a}_{eq_b}")
+        idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
+        
+        ganador_final = st.radio("Elige al Campeón del Mundo 2026:", opciones, index=idx, key=f"radio_final_{eq_a}_{eq_b}")
         st.session_state.ganador_final = ganador_final
         st.markdown("</div>", unsafe_allow_html=True)
 
