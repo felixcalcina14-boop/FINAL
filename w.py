@@ -7,25 +7,25 @@ import random
 # =====================
 st.set_page_config(page_title="Polla Mundial 2026", page_icon="🏆", layout="centered")
 
-# CORREGIDO: Ahora apunta al repositorio correcto 'FINAL' donde está corriendo tu app
-url_imagen_github = "https://githubusercontent.com"
+# Enlace web directo al archivo que ya subiste a tu repositorio público 'FINAL'
+url_imagen_web = "https://githubusercontent.com"
 
-# Inyección con color de respaldo oscuro por seguridad
 st.markdown(f"""
     <style>
-    html, body, .stApp, [data-testid="stAppViewContainer"] {{
+    /* Forzar fondo transparente en capas nativas de Streamlit para que no tapen la imagen */
+    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"], [data-testid="stMainBlockContainer"] {{
+        background-color: transparent !important;
+        background: transparent !important;
+    }}
+    
+    /* Inyección directa de la URL de la imagen en el fondo absoluto de la página web */
+    html, body, [data-testid="stApp"] {{
         background-color: #111827 !important;
-        background-image: url("{url_imagen_github}") !important;
+        background-image: url("{url_imagen_web}") !important;
         background-size: cover !important;
         background-position: center center !important;
         background-repeat: no-repeat !important;
         background-attachment: fixed !important;
-    }}
-    
-    /* Forzar fondo transparente solo en la cabecera e interiores */
-    [data-testid="stHeader"], [data-testid="stMainBlockContainer"] {{
-        background-color: transparent !important;
-        background: transparent !important;
     }}
     
     /* Contenedor central semi-oscuro para proteger la lectura de textos */
