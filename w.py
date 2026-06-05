@@ -8,7 +8,7 @@ import random
 st.set_page_config(page_title="Polla Mundial 2026", page_icon="🏆", layout="centered")
 
 # Enlace web directo al archivo que ya subiste a tu repositorio público 'FINAL'
-url_imagen_web = "https://githubusercontent.com"
+url_imagen_web = "https://unsplash.com"
 
 st.markdown(f"""
     <style>
