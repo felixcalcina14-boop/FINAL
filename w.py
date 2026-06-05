@@ -49,7 +49,6 @@ estructura_4 = [
     {"llave": "d27", "a": "d21", "b": "d22"}, {"llave": "d28", "a": "d23", "b": "d24"}
 ]
 
-# AQUÍ ESTÁ LA CORRECCIÓN CLAVE DE LAS LLAVES SEMIFINALES
 estructura_2 = [
     {"llave": "d29", "a": "d25", "b": "d26"}, 
     {"llave": "d30", "a": "d27", "b": "d28"}
@@ -57,7 +56,7 @@ estructura_2 = [
 
 st.title("🏆 Polla Mundial - Bracket FIFA 2026")
 
-# Pedir nombre de usuario al inicio y mantenerlo en sesión
+# Pedir nombre de usuario
 if "usuario" not in st.session_state:
     st.session_state.usuario = ""
 
@@ -72,7 +71,24 @@ if st.session_state.usuario == "":
             st.error("Por favor, introduce un nombre válido.")
     st.stop()
 
+# BARRA LATERAL CON CONTROL DE NAVEGACIÓN
 st.sidebar.markdown(f"👤 **Usuario:** {st.session_state.usuario}")
+
+if st.session_state.fase != "grupos":
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("⚙️ Navegación")
+    if st.sidebar.button("◀️ Volver a Fase de Grupos"):
+        # Limpiamos todo el progreso posterior de las llaves para que no guarde lo anterior
+        claves_a_borrar = [
+            "ganadores_16", "ganadores_8", "ganadores_4", "ganadores_2", 
+            "llaves_16", "llaves_8", "llaves_4", "llaves_2", "llave_final"
+        ]
+        for clave in claves_a_borrar:
+            if clave in st.session_state:
+                del st.session_state[clave]
+        
+        st.session_state.fase = "grupos"
+        st.rerun()
 
 # =====================
 # FASE GRUPOS
@@ -139,7 +155,6 @@ if st.session_state.fase == "16avos":
     ganadores_16 = {}
 
     for p in st.session_state.llaves_16:
-        # CORREGIDO: Se removió el texto de la llave en la interfaz gráfica
         ganador = st.radio(f"{p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r16_{p['llave']}")
         ganadores_16[p["llave"]] = ganador
 
@@ -163,7 +178,6 @@ if st.session_state.fase == "octavos":
     ganadores_8 = {}
 
     for p in st.session_state.llaves_8:
-        # CORREGIDO: Se removió el texto de la llave en la interfaz gráfica
         ganador = st.radio(f"{p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r8_{p['llave']}")
         ganadores_8[p["llave"]] = ganador
 
@@ -187,7 +201,6 @@ if st.session_state.fase == "cuartos":
     ganadores_4 = {}
 
     for p in st.session_state.llaves_4:
-        # CORREGIDO: Se removió el texto de la llave en la interfaz gráfica
         ganador = st.radio(f"{p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r4_{p['llave']}")
         ganadores_4[p["llave"]] = ganador
 
@@ -211,7 +224,6 @@ if st.session_state.fase == "semis":
     ganadores_2 = {}
 
     for p in st.session_state.llaves_2:
-        # CORREGIDO: Se removió el texto de la llave en la interfaz gráfica
         ganador = st.radio(f"{p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r2_{p['llave']}")
         ganadores_2[p["llave"]] = ganador
 
@@ -232,7 +244,6 @@ if st.session_state.fase == "final":
     st.header("Gran Final")
     p = st.session_state.llave_final
 
-    # CORREGIDO: Se removió el texto de la llave en la interfaz gráfica
     ganador_final = st.radio(f"{p['a']} vs {p['b']}", [p["a"], p["b"]], key="final_winner")
 
     st.success(f"🏆 ¡EL CAMPEÓN DEL MUNDIAL ES: {ganador_final.upper()}! 🏆")
@@ -260,10 +271,3 @@ if st.session_state.fase == "final":
     df_pronostico = pd.DataFrame(datos_pronostico)
     st.dataframe(df_pronostico)
 
-    csv = df_pronostico.to_csv(index=False).encode('utf-8')
-    st.download_button(
-        label="📥 Descargar mi Pronóstico (CSV)",
-        data=csv,
-        file_name=f"pronostico_{st.session_state.usuario}.csv",
-        mime="text/csv"
-    )
