@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "fluid-amulet-498021-h4",
+  "private_key_id": "01957bf05abaad9d3a233dbe7afa170978ae0e0d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDYw2Llc7HtF+o6\n5afk/pmVVOkvP5a/V7MZHiW4KqDBapBp5HrsQ6y+EoQfsyU2jltAwPd565poIQrC\n/FM6jvDyDGBrDekwGPW/65jNuCGcoDyyLkGwA40k6OyKwFSy3YQhR1yAub/MRzLC\nMuzI0yuwDpF3E7RMUtTTCzAZifMm1yDY7Tp6rkoVnWr3L85dCEjRfCZGN8ygNW0M\n3GxFwJdX0rur3vgsTrtbKcpnOsYBAWBG31Hi801mwi1qLDJoTSzRlRsMxXdB1bCJ\n8sg8LZy+WG6891otxjrNFnZq7dzgbkZoqCbq9aDcKu+3cq9y4uj1+sEVGHzCTx1p\nodQn0dnvAgMBAAECggEAEtoDStiiBnBdrZugMMPiZYtfRahZGvEB9tLuuDKfjSgQ\na9/ev5eEeXoGGvUAl9sPnUpq+3koZ5qgDfnV3zI5Su5qoETdx+dpJV9/CD0q/IKE\nZNatsyTL7K7ZNkP92cR2zlIffbkp22vsbS6dSztFAb3H8ZGOzP3TMTuNhlsUq4bs\nhGDSpA0lEm51FhqThVSHEpHicfxGSMzqDSSgmaZWDgCDuxI6jyTRbCMxxkEbsJIW\n/RsrmmaRN2gl3vhqoboE3Zfk3uIgQgaKN3U2kOtUWJYPCZ7MA9qV8Ocy2+pMz4TV\n/Ar38XJBsa4pvseU08Ug9OBGzK96fr58gBevZyjD2QKBgQDtMnGY/BqOBf87z6Xv\nYl+N5/JbKdM54KFpVZ9AYZpN+RHafrBewzRnHk2FwFGidluf3QEe/bu3IvZbxyZ9\n+/AyUIvIxy6obqJtq7OaAOpquTrfu7Sj2asUNcMgjMGO1ii4lpqPaF3aga68rBym\ngcp3ugeyu0wuxJgaRmAvEGVd2wKBgQDp8kTg8yu8cHm/+tVcIZkgZo2nyJ/J9ds9\nwhuaApb59dn/wJCLmt3ZIMLKV/DKtt5dO421miBxa7lgV1Pnj1pFolgYpBrtHuu+\n7FiC8zVsrsF//OGfYLM96PHSJG2ExQOJUcsO+ukzAWU2utlPFUTYcsuH0T6HtjI7\nmYYl1u7yfQKBgFoRy50iLhs8H71gjkwmeM50A02mxjS2HdTX1I8oAOYW7Dah4Os7\nCM0XbqyZaOZeN1CvJVvVUdCrEA2tw+oXHxCcEVh+ejMvP7KRfrO+IUXBbJ/EsUV+\nxD36ZEwZ5u4MWI4vciV+phTxJZ8zY/W+V1m7ZGz0PmuL744apy939GX9AoGAdg58\nE8ii2YUo62h5IvURgPg/o9vqRtB6wr+hjiagaaNXT2itiMWuDlQp+FJIgQOnUwUq\njeopVRM3iRaIkOIWe+1g545oyCBCdyZtxCdXXnER1LSYZwU1bpiO76zSV53UGwfb\noMOdys95dBT2dKIXC+NiMje1hma7Erh2qcG880ECgYBuEbm8wz8D90Z7FweOtgCu\nmczv9EWuZK05/EL9n0LveXcV2KiXtH81CHenplxl4ZNyyqesPLrBw4mrAs6hKWLX\n3WT4SrLEojzGcEeohKTq/iPmpogOgd46p91okVkGFsrzrNgO8Tn6BJIE9OFWkwyK\nS/LTXCHA+/d+XWrcCV9C8Q==\n-----END PRIVATE KEY-----\n",
+  "client_email": "polla-mundial-2026-safety-qual@fluid-amulet-498021-h4.iam.gserviceaccount.com",
+  "client_id": "115988223978657082148",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/polla-mundial-2026-safety-qual%40fluid-amulet-498021-h4.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
