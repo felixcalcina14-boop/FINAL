@@ -7,57 +7,32 @@ import random
 # =====================
 st.set_page_config(page_title="Polla Mundial 2026", page_icon="🏆", layout="centered")
 
+# CSS limpio para la interfaz general, botones y tablas
 st.markdown("""
     <style>
     .main { background-color: #0e1117; }
     h1 { color: #FFD700; text-align: center; font-weight: 800; text-shadow: 2px 2px 4px #000000; }
     h2 { color: #10B981; border-bottom: 2px solid #10B981; padding-bottom: 5px; margin-top: 30px; }
     h3 { color: #F59E0B; }
-    .partido-header {
+    .partido-card {
         background-color: #1e293b;
-        padding: 10px 15px;
-        border-radius: 8px 8px 0 0;
-        border-left: 5px solid #10B981;
-        margin-top: 15px;
-        font-weight: bold;
-    }
-    .partido-body {
-        background-color: #0f172a;
         padding: 15px;
-        border-radius: 0 0 8px 8px;
+        border-radius: 12px;
         border-left: 5px solid #10B981;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
     div.stButton > button:first-child {
         background-color: #10B981; color: white; font-weight: bold;
         border-radius: 8px; border: none; padding: 10px 24px;
-        transition: all 0.3s ease; width: 100%; margin-top: 20px;
+        transition: all 0.3s ease; width: 100%;
     }
     div.stButton > button:first-child:hover {
-        background-color: #059669; transform: scale(1.01);
+        background-color: #059669; transform: scale(1.02);
     }
     </style>
     """, unsafe_allow_html=True)
 
-# =====================
-# DICCIONARIO GLOBAL DE BANDERAS
-# =====================
-banderas = {
-    "México": "🇲🇽", "Corea del Sur": "🇰🇷", "Sudáfrica": "🇿🇦", "República checa": "🇨🇿",
-    "Canadá": "🇨🇦", "Qatar": "🇶🇦", "Suiza": "🇨🇭", "Bosnia y Herzegovina": "🇧🇦",
-    "Brasil": "🇧🇷", "Marruecos": "🇲🇦", "Haití": "🇭🇹", "Escocia": "🏴\u200d󠁧\u200b󠁢\u200b󠁳\u200b󠁣\u200b󠁴\u200b󠁿",
-    "Estados Unidos": "🇺🇸", "Paraguay": "🇵🇾", "Australia": "🇦🇺", "Turquía": "🇹🇷",
-    "Alemania": "🇩🇪", "Curazao": "🇨🇼", "Costa de Marfil": "🇨🇮", "Ecuador": "🇪🇨",
-    "Países Bajos": "🇳🇱", "Japón": "🇯🇵", "Suecia": "🇸🇪", "Túnez": "🇹🇳",
-    "Bélgica": "🇧🇪", "Egipto": "🇪🇬", "Irán": "🇮🇷", "Nueva Zelanda": "🇳🇿",
-    "España": "🇪🇸", "Cabo Verde": "🇨🇻", "Arabia Saudita": "🇸🇦", "Uruguay": "🇺🇾",
-    "Francia": "🇫🇷", "Senegal": "🇸🇳", "Irak": "🇮🇶", "Noruega": "🇳🇴",
-    "Argentina": "🇦🇷", "Argelia": "🇩🇿", "Austria": "🇦🇹", "Jordania": "🇯🇴",
-    "Portugal": "🇵🇹", "RD Congo": "🇨🇩", "Uzbekistán": "🇺🇿", "Colombia": "🇨🇴",
-    "Inglaterra": "🏴\u200d󠁧\u200b󠁢\u200b󠁥\u200b󠁮\u200b󠁧\u200b󠁿", "Croacia": "🇭🇷", "Ghana": "🇬🇭", "Panamá": "🇵🇦",
-    "Por definir": "🏳️"
-}
 
 # =====================
 # DATOS ESTRUCTURALES DEL TORNEO
