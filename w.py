@@ -7,20 +7,15 @@ import random
 # =====================
 st.set_page_config(page_title="Polla Mundial 2026", page_icon="🏆", layout="centered")
 
-# Enlace crudo directo alternativo para garantizar compatibilidad con tu repositorio público
+# Enlace crudo directo alternativo a tu repositorio de GitHub
 url_imagen_github = "https://githubusercontent.com"
 
-# Inyección forzada de transparencia sobre los bloques nativos de Streamlit
+# Inyección corregida con color de respaldo oscuro en caso de que falle la URL
 st.markdown(f"""
     <style>
-    /* Forzar fondo transparente en todas las capas internas de Streamlit para que dejen pasar la imagen */
-    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"], [data-testid="stMainBlockContainer"] {{
-        background-color: transparent !important;
-        background: transparent !important;
-    }}
-    
-    /* Aplicar tu imagen .png en el fondo absoluto de la aplicación */
-    html, body, [data-testid="stApp"] {{
+    /* El truco: Se define un color oscuro de fondo de respaldo (#111827) por si la imagen no carga */
+    html, body, .stApp, [data-testid="stAppViewContainer"] {{
+        background-color: #111827 !important;
         background-image: url("{url_imagen_github}") !important;
         background-size: cover !important;
         background-position: center center !important;
@@ -28,19 +23,32 @@ st.markdown(f"""
         background-attachment: fixed !important;
     }}
     
-    /* Tarjeta o contenedor semi-oscuro para proteger la lectura de textos sobre el fondo de pantalla */
+    /* Forzar fondo transparente solo en la cabecera e interiores */
+    [data-testid="stHeader"], [data-testid="stMainBlockContainer"] {{
+        background-color: transparent !important;
+        background: transparent !important;
+    }}
+    
+    /* Contenedor central semi-oscuro para proteger la lectura de textos */
     [data-testid="stAppViewBlockContainer"] {{
-        background-color: rgba(14, 17, 23, 0.88) !important;
+        background-color: rgba(30, 41, 59, 0.7) !important;
         padding: 30px !important;
         border-radius: 16px !important;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.7) !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5) !important;
         margin-top: 20px !important;
     }}
     
-    /* Configuración visual de textos y botones mundialistas */
-    h1 {{ color: #FFD700; text-align: center; font-weight: 800; text-shadow: 2px 2px 4px #000000; }}
-    h2 {{ color: #10B981; border-bottom: 2px solid #10B981; padding-bottom: 5px; margin-top: 30px; font-weight: bold; }}
-    h3 {{ color: #F59E0B; }}
+    /* Títulos y textos con colores vivos y sombras forzadas para que se lean SÍ O SÍ */
+    h1 {{ color: #FFD700 !important; text-align: center; font-weight: 800; text-shadow: 2px 2px 4px #000000 !important; }}
+    h2 {{ color: #10B981 !important; border-bottom: 2px solid #10B981; padding-bottom: 5px; margin-top: 30px; font-weight: bold; text-shadow: 1px 1px 3px #000000 !important; }}
+    h3 {{ color: #F59E0B !important; text-shadow: 1px 1px 3px #000000 !important; font-weight: bold; }}
+    
+    /* Estilo de los textos de los selectores que se habían vuelto invisibles */
+    label {{
+        color: #ffffff !important;
+        font-weight: bold !important;
+        text-shadow: 1px 1px 2px #000000 !important;
+    }}
     
     div.stButton > button:first-child {{
         background-color: #10B981; color: white; font-weight: bold;
