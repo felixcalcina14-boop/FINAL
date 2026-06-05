@@ -8,7 +8,7 @@ import random
 st.set_page_config(page_title="Polla Mundial 2026", page_icon="🏆", layout="centered")
 
 # Enlace web directo al archivo que ya subiste a tu repositorio público 'FINAL'
-url_imagen_web = "https://unsplash.com"
+url_imagen_web = "https://https://playersoflife.com/wp-content/smush-webp/2026/06/wwe-2026-mty-1-1024x576.jpg.webp
 
 st.markdown(f"""
     <style>
