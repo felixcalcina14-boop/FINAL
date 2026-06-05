@@ -155,15 +155,36 @@ if "clasificados" in st.session_state and "mejores_terceros" in st.session_state
         random.shuffle(st.session_state.orden_terceros)
 
 llaves_16_calculadas = []
-if "clasificados" in st.session_state and st.session_state.orden_terceros:
+if "clasificados" in st.session_state and "mejores_terceros" in st.session_state:
+    # CORREGIDO: Sincroniza y actualiza la lista de terceros elegidos al instante
+    st.session_state.orden_terceros = st.session_state.mejores_terceros.copy()
+    
     clas = {k.lower(): v for k, v in st.session_state.clasificados.items()}
     contador = 0
+    
     for item in estructura_16:
         a_key, b_key = item["a"], item["b"]
-        eq_a = st.session_state.orden_terceros[contador] if a_key == "t" else clas.get(a_key, "Por definir")
-        if a_key == "t": contador += 1
-        eq_b = st.session_state.orden_terceros[contador] if b_key == "t" else clas.get(b_key, "Por definir")
-        if b_key == "t": contador += 1
+        
+        # Asignar equipo A
+        if a_key == "t":
+            if contador < len(st.session_state.orden_terceros):
+                eq_a = st.session_state.orden_terceros[contador]
+                contador += 1
+            else:
+                eq_a = "Por definir"
+        else:
+            eq_a = clas.get(a_key, "Por definir")
+            
+        # Asignar equipo B
+        if b_key == "t":
+            if contador < len(st.session_state.orden_terceros):
+                eq_b = st.session_state.orden_terceros[contador]
+                contador += 1
+            else:
+                eq_b = "Por definir"
+        else:
+            eq_b = clas.get(b_key, "Por definir")
+            
         llaves_16_calculadas.append({"llave": item["llave"], "a": eq_a, "b": eq_b})
 
 # =====================
