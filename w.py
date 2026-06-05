@@ -3,6 +3,38 @@ import pandas as pd
 import random
 
 # =====================
+# CONFIGURACIÓN DE PÁGINA Y ESTILOS CSS
+# =====================
+st.set_page_config(page_title="Polla Mundial 2026", page_icon="🏆", layout="centered")
+
+# Inyección de CSS para customizar las tarjetas de los partidos, botones y fuentes
+st.markdown("""
+    <style>
+    .main { background-color: #0e1117; }
+    h1 { color: #FFD700; text-align: center; font-weight: 800; text-shadow: 2px 2px 4px #000000; }
+    h2 { color: #10B981; border-bottom: 2px solid #10B981; padding-bottom: 5px; margin-top: 30px; }
+    h3 { color: #F59E0B; }
+    .partido-card {
+        background-color: #1e293b;
+        padding: 15px;
+        border-radius: 12px;
+        border-left: 5px solid #10B981;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .stRadio > div { background-color: transparent; padding: 5px; }
+    div.stButton > button:first-child {
+        background-color: #10B981; color: white; font-weight: bold;
+        border-radius: 8px; border: none; padding: 10px 24px;
+        transition: all 0.3s ease; width: 100%;
+    }
+    div.stButton > button:first-child:hover {
+        background-color: #059669; transform: scale(1.02);
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# =====================
 # DATOS DEL MUNDIAL INTEGRADOS
 # =====================
 grupos = {
@@ -48,26 +80,28 @@ estructura_2 = [
     {"llave": "d30", "a": "d27", "b": "d28"}
 ]
 
-st.title("🏆 Polla Mundial - Bracket FIFA 2026")
+st.markdown("<h1>🏆 POLLA MUNDIALISTA FIFA 2026 🏆</h1>", unsafe_allow_html=True)
 
 # Pedir nombre de usuario
 if "usuario" not in st.session_state:
     st.session_state.usuario = ""
 
 if st.session_state.usuario == "":
-    st.subheader("Configuración Inicial")
-    nombre = st.text_input("Introduce tu nombre para empezar el pronóstico:")
-    if st.button("Comenzar"):
+    st.markdown("<div class='partido-card'>", unsafe_allow_html=True)
+    st.subheader("📝 Registro de Jugador")
+    nombre = st.text_input("Introduce tu nombre o apodo para el fixture:")
+    if st.button("🚀 Comenzar Desafío"):
         if nombre.strip() != "":
             st.session_state.usuario = nombre.strip()
             st.session_state.fase = "Grupos"
             st.rerun()
         else:
             st.error("Por favor, introduce un nombre válido.")
+    st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
 # =====================
-# CONTROL DE ESTADOS INICIALES EN BLANCO
+# CONFIGURACIÓN DE MEMORIAS
 # =====================
 if "ganadores_16" not in st.session_state: st.session_state.ganadores_16 = {}
 if "ganadores_8" not in st.session_state: st.session_state.ganadores_8 = {}
@@ -76,27 +110,28 @@ if "ganadores_2" not in st.session_state: st.session_state.ganadores_2 = {}
 if "ganador_final" not in st.session_state: st.session_state.ganador_final = ""
 if "orden_terceros" not in st.session_state: st.session_state.orden_terceros = []
 
-# BARRA LATERAL: INFO Y SELECTOR DE FASES
-st.sidebar.markdown(f"👤 **Usuario:** {st.session_state.usuario}")
+# BARRA LATERAL ESTILIZADA
+st.sidebar.markdown(f"### 👤 Jugador: `{st.session_state.usuario}`")
 st.sidebar.markdown("---")
-st.sidebar.subheader("⚙️ Navegar por el Torneo")
+st.sidebar.subheader("🗺️ Menú del Torneo")
 
-# Selector que le permite al usuario saltar a cualquier fase libremente
 lista_fases = ["Grupos", "16avos de Final", "Octavos de Final", "Cuartos de Final", "Semifinales", "Gran Final"]
-fase_seleccionada = st.sidebar.radio("Ir a la fase:", lista_fases, index=lista_fases.index(st.session_state.fase))
+fase_seleccionada = st.sidebar.radio("Saltar directamente a:", lista_fases, index=lista_fases.index(st.session_state.fase))
 st.session_state.fase = fase_seleccionada
 
-# =====================
-# CÁLCULOS EN CADENA (EL CORAZÓN DE LA APLICACIÓN)
-# =====================
+# Mostrar estado de avance en barra lateral
+st.sidebar.markdown("---")
+st.sidebar.subheader("📊 Tu Progreso")
+st.sidebar.metric(label="Fase Actual", value=st.session_state.fase)
 
-# 1. Resolver Terceros (Solo se mezclan la primera vez para mantener estabilidad)
+# =====================
+# CÁLCULOS DINÁMICOS
+# =====================
 if "clasificados" in st.session_state and "mejores_terceros" in st.session_state:
     if not st.session_state.orden_terceros or len(st.session_state.orden_terceros) != len(st.session_state.mejores_terceros):
         st.session_state.orden_terceros = st.session_state.mejores_terceros.copy()
         random.shuffle(st.session_state.orden_terceros)
 
-# 2. Armar llaves de 16avos de forma dinámica basado en las elecciones actuales de Grupos
 llaves_16_calculadas = []
 if "clasificados" in st.session_state and st.session_state.orden_terceros:
     clas = {k.lower(): v for k, v in st.session_state.clasificados.items()}
@@ -110,59 +145,73 @@ if "clasificados" in st.session_state and st.session_state.orden_terceros:
         llaves_16_calculadas.append({"llave": item["llave"], "a": eq_a, "b": eq_b})
 
 # =====================
-# VISTA GENERAL DE LAS FASES
+# RENDERIZADO DE FASES CON DISEÑO
 # =====================
 
 # --- FASE GRUPOS ---
 if st.session_state.fase == "Grupos":
-    st.header("Fase de Grupos")
+    st.header("⚽ Clasificación de Fase de Grupos")
     clasificados = {}
     terceros_pool = []
 
-    for g, equipos in grupos.items():
-        st.subheader(f"Grupo {g.upper()}")
-        primero = st.selectbox(f"1° {g.upper()}", equipos, key=f"p_{g}")
-        segundo = st.selectbox(f"2° {g.upper()}", [e for e in equipos if e != primero], key=f"s_{g}")
-        
-        clasificados[f"1{g}"] = primero
-        clasificados[f"2{g}"] = segundo
-        terceros_pool.extend([e for e in equipos if e not in [primero, segundo]])
+    # Uso de columnas de Streamlit para poner 2 grupos por fila y ahorrar espacio
+    col1, col2 = st.columns(2)
+    
+    for idx, (g, equipos) in enumerate(grupos.items()):
+        target_col = col1 if idx % 2 == 0 else col2
+        with target_col:
+            st.markdown(f"<div class='partido-card'><h3>Grupo {g.upper()}</h3>", unsafe_allow_html=True)
+            primero = st.selectbox(f"1° Puesto", equipos, key=f"p_{g}")
+            segundo = st.selectbox(f"2° Puesto", [e for e in equipos if e != primero], key=f"s_{g}")
+            st.markdown("</div>", unsafe_allow_html=True)
+            
+            clasificados[f"1{g}"] = primero
+            clasificados[f"2{g}"] = segundo
+            terceros_pool.extend([e for e in equipos if e not in [primero, segundo]])
 
     st.session_state.clasificados = clasificados
     st.session_state.terceros_pool = terceros_pool
 
-    st.header("Mejores Terceros")
+    st.header("🏅 Selección de los 8 Mejores Terceros")
+    st.info("Selecciona qué terceros avanzan a la ronda eliminatoria sin repetir grupos originales.")
     mapa_grupo = {e: g for g, eqs in grupos.items() for e in eqs if e in terceros_pool}
     seleccionados = []
 
+    col_t1, col_t2 = st.columns(2)
     for i in range(8):
-        usados_grupos = [mapa_grupo[e] for e in seleccionados]
-        opciones = [e for e in terceros_pool if e not in seleccionados and mapa_grupo[e] not in usados_grupos]
-        if opciones:
-            elegido = st.selectbox(f"Mejor Tercero {i+1}", opciones, key=f"t{i}")
-            seleccionados.append(elegido)
+        t_col = col_t1 if i % 2 == 0 else col_t2
+        with t_col:
+            usados_grupos = [mapa_grupo[e] for e in seleccionados]
+            opciones = [e for e in terceros_pool if e not in seleccionados and mapa_grupo[e] not in usados_grupos]
+            if opciones:
+                st.markdown("<div class='partido-card'>", unsafe_allow_html=True)
+                elegido = st.selectbox(f"Cupo Tercero {i+1}", opciones, key=f"t{i}")
+                seleccionados.append(elegido)
+                st.markdown("</div>", unsafe_allow_html=True)
 
     st.session_state.mejores_terceros = seleccionados
     
+    st.markdown("<br>", unsafe_allow_html=True)
     if st.button("Siguiente: 16avos de Final ➡️"):
         st.session_state.fase = "16avos de Final"
         st.rerun()
 
 # --- FASE 16AVOS ---
 elif st.session_state.fase == "16avos de Final":
-    st.header("16avos de Final")
+    st.header("🛡️ Cruces de 16avos de Final")
     if not llaves_16_calculadas:
-        st.warning("⚠️ Primero debes completar la Fase de Grupos.")
+        st.warning("⚠️ Primero debes completar la clasificación de la Fase de Grupos.")
     else:
         for p in llaves_16_calculadas:
-            # Si el ganador guardado previamente ya no está en la llave por una corrección, se resetea la opción
+            st.markdown("<div class='partido-card'>", unsafe_allow_html=True)
             opciones = [p["a"], p["b"]]
             idx = 0
             if p['llave'] in st.session_state.ganadores_16 and st.session_state.ganadores_16[p['llave']] in opciones:
                 idx = opciones.index(st.session_state.ganadores_16[p['llave']])
             
-            ganador = st.radio(f"{p['a']} vs {p['b']}", opciones, index=idx, key=f"radio_16_{p['llave']}")
+            ganador = st.radio(f"¿Quién avanza?", opciones, index=idx, key=f"radio_16_{p['llave']}_{p['a']}_{p['b']}")
             st.session_state.ganadores_16[p["llave"]] = ganador
+            st.markdown("</div>", unsafe_allow_html=True)
 
         if st.button("Siguiente: Octavos de Final ➡️"):
             st.session_state.fase = "Octavos de Final"
@@ -170,11 +219,12 @@ elif st.session_state.fase == "16avos de Final":
 
 # --- FASE OCTAVOS ---
 elif st.session_state.fase == "Octavos de Final":
-    st.header("Octavos de Final")
+    st.header("⚡ Octavos de Final")
     if not st.session_state.ganadores_16:
-        st.warning("⚠️ Primero debes votar en los 16avos de Final.")
+        st.warning("⚠️ Primero debes definir los ganadores en los 16avos de Final.")
     else:
         for item in estructura_8:
+            st.markdown("<div class='partido-card'>", unsafe_allow_html=True)
             eq_a = st.session_state.ganadores_16.get(item["a"], "Por definir")
             eq_b = st.session_state.ganadores_16.get(item["b"], "Por definir")
             
@@ -183,8 +233,9 @@ elif st.session_state.fase == "Octavos de Final":
             if item['llave'] in st.session_state.ganadores_8 and st.session_state.ganadores_8[item['llave']] in opciones:
                 idx = opciones.index(st.session_state.ganadores_8[item['llave']])
 
-            ganador = st.radio(f"{eq_a} vs {eq_b}", opciones, index=idx, key=f"radio_8_{item['llave']}")
+            ganador = st.radio(f"¿Quién pasa a Cuartos?", opciones, index=idx, key=f"radio_8_{item['llave']}_{eq_a}_{eq_b}")
             st.session_state.ganadores_8[item["llave"]] = ganador
+            st.markdown("</div>", unsafe_allow_html=True)
 
         if st.button("Siguiente: Cuartos de Final ➡️"):
             st.session_state.fase = "Cuartos de Final"
@@ -192,11 +243,12 @@ elif st.session_state.fase == "Octavos de Final":
 
 # --- FASE CUARTOS ---
 elif st.session_state.fase == "Cuartos de Final":
-    st.header("Cuartos de Final")
+    st.header("🔥 Cuartos de Final")
     if not st.session_state.ganadores_8:
-        st.warning("⚠️ Primero debes votar en los Octavos de Final.")
+        st.warning("⚠️ Primero debes definir los ganadores en los Octavos de Final.")
     else:
         for item in estructura_4:
+            st.markdown("<div class='partido-card'>", unsafe_allow_html=True)
             eq_a = st.session_state.ganadores_8.get(item["a"], "Por definir")
             eq_b = st.session_state.ganadores_8.get(item["b"], "Por definir")
             
@@ -205,19 +257,22 @@ elif st.session_state.fase == "Cuartos de Final":
             if item['llave'] in st.session_state.ganadores_4 and st.session_state.ganadores_4[item['llave']] in opciones:
                 idx = opciones.index(st.session_state.ganadores_4[item['llave']])
 
-            ganador = st.radio(f"{eq_a} vs {eq_b}", opciones, index=idx, key=f"radio_4_{item['llave']}")
+            ganador = st.radio(f"¿Quién clasifica a la Semifinal?", opciones, index=idx, key=f"radio_4_{item['llave']}_{eq_a}_{eq_b}")
             st.session_state.ganadores_4[item["llave"]] = ganador
+            st.markdown("</div>", unsafe_allow_html=True)
 
         if st.button("Siguiente: Semifinales ➡️"):
             st.session_state.fase = "Semifinales"
             st.rerun()
 
+# --- FASE SEMIFINALES ---
 elif st.session_state.fase == "Semifinales":
-    st.header("Semifinales")
+    st.header("🚀 Semifinales del Mundo")
     if not st.session_state.ganadores_4:
-        st.warning("⚠️ Primero debes votar en los Cuartos de Final.")
+        st.warning("⚠️ Primero debes definir los ganadores en los Cuartos de Final.")
     else:
         for item in estructura_2:
+            st.markdown("<div class='partido-card'>", unsafe_allow_html=True)
             eq_a = st.session_state.ganadores_4.get(item["a"], "Por definir")
             eq_b = st.session_state.ganadores_4.get(item["b"], "Por definir")
             
@@ -226,10 +281,9 @@ elif st.session_state.fase == "Semifinales":
             if item['llave'] in st.session_state.ganadores_2 and st.session_state.ganadores_2[item['llave']] in opciones:
                 idx = opciones.index(st.session_state.ganadores_2[item['llave']])
 
-            # Clave dinámica única para evitar bloqueos al cambiar de equipos
-            llave_dinamica = f"radio_2_{item['llave']}_{eq_a}_{eq_b}"
-            ganador = st.radio(f"{eq_a} vs {eq_b}", opciones, index=idx, key=llave_dinamica)
+            ganador = st.radio(f"¿Quién avanza a la Gran Final?", opciones, index=idx, key=f"radio_2_{item['llave']}_{eq_a}_{eq_b}")
             st.session_state.ganadores_2[item["llave"]] = ganador
+            st.markdown("</div>", unsafe_allow_html=True)
 
         if st.button("Siguiente: Gran Final ➡️"):
             st.session_state.fase = "Gran Final"
@@ -237,26 +291,27 @@ elif st.session_state.fase == "Semifinales":
 
 # --- FASE GRAN FINAL Y RESUMEN ---
 elif st.session_state.fase == "Gran Final":
-    st.header("Gran Final")
+    st.header("👑 El Partido Soñado: Gran Final")
     if not st.session_state.ganadores_2:
-        st.warning("⚠️ Primero debes votar en las Semifinales.")
+        st.warning("⚠️ Primero debes definir los ganadores en las Semifinales.")
     else:
         eq_a = st.session_state.ganadores_2.get("d29", "Por definir")
         eq_b = st.session_state.ganadores_2.get("d30", "Por definir")
         
+        st.markdown("<div class='partido-card' style='border-left: 5px solid #FFD700;'>", unsafe_allow_html=True)
         opciones = [eq_a, eq_b]
         idx = 0
         if st.session_state.ganador_final in opciones:
             idx = opciones.index(st.session_state.ganador_final)
 
-        # Clave dinámica para la gran final
-        llave_final_dinamica = f"radio_final_{eq_a}_{eq_b}"
-        ganador_final = st.radio(f"{eq_a} vs {eq_b}", opciones, index=idx, key=llave_final_dinamica)
+        ganador_final = st.radio(f"Elige al Campeón del Mundo 2026:", opciones, index=idx, key=f"radio_final_{eq_a}_{eq_b}")
         st.session_state.ganador_final = ganador_final
+        st.markdown("</div>", unsafe_allow_html=True)
 
+        st.balloons()
         st.success(f"🏆 ¡EL CAMPEÓN DEL MUNDIAL ES: {ganador_final.upper()}! 🏆")
 
-        # CONSTRUCCIÓN DE LA TABLA DE RECOLECCIÓN DE 7 COLUMNAS
+        # CONSTRUCCIÓN DE LA TABLA RESUMEN DE 7 COLUMNAS
         st.subheader("📊 Tabla Resumen de tu Pronóstico")
         
         lista_c32 = list(st.session_state.clasificados.values()) + st.session_state.orden_terceros
@@ -278,16 +333,17 @@ elif st.session_state.fase == "Gran Final":
         }
         
         df_pronostico = pd.DataFrame(datos_pronostico)
-        st.dataframe(df_pronostico)
+        st.dataframe(df_pronostico, use_container_width=True)
 
         csv = df_pronostico.to_csv(index=False).encode('utf-8')
         st.download_button(
-            label="📥 Descargar mi Pronóstico (CSV)",
+            label="📥 Descargar mi Pronóstico en Formato CSV",
             data=csv,
             file_name=f"pronostico_{st.session_state.usuario}.csv",
             mime="text/csv"
         )
 
-        if st.button("🔄 Reiniciar todo el Torneo"):
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        if st.button("🔄 Reiniciar y Borrar todo el Torneo"):
             st.session_state.clear()
             st.rerun()
