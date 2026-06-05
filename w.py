@@ -7,7 +7,7 @@ import random
 # =====================
 st.set_page_config(page_title="Polla Mundial 2026", page_icon="🏆", layout="centered")
 
-url_imagen_web = "https://playersoflife.com/wp-content/smush-webp/2026/06/wwe-2026-mty-1-1024x576.jpg.webp"
+url_imagen_web = "https://media.cnn.com/api/v1/images/stellar/prod/cnne-1279822-historia-de-la-copa-mundial-de-la-fifa.png?c=16x9&q=w_1280,c_fill/f_webp"
 
 
 st.markdown(f"""
