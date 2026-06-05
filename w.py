@@ -156,36 +156,75 @@ if "clasificados" in st.session_state and "mejores_terceros" in st.session_state
 
 llaves_16_calculadas = []
 if "clasificados" in st.session_state and "mejores_terceros" in st.session_state:
-    # CORREGIDO: Sincroniza y actualiza la lista de terceros elegidos al instante
-    st.session_state.orden_terceros = st.session_state.mejores_terceros.copy()
-    
     clas = {k.lower(): v for k, v in st.session_state.clasificados.items()}
-    contador = 0
     
-    for item in estructura_16:
-        a_key, b_key = item["a"], item["b"]
+    # Mapeo para saber a qué grupo original pertenece cada equipo clasificado
+    mapa_equipos_a_grupo = {}
+    for g, eqs in grupos.items():
+        for eq in eqs:
+            mapa_equipos_a_grupo[eq] = g.lower()
+
+    # Algoritmo de emparejamiento con validación reglamentaria FIFA
+    intentos = 0
+    while intentos < 100:
+        terceros_candidatos = st.session_state.mejores_terceros.copy()
+        # Mezclamos para dar aleatoriedad justa, pero bajo reglas
+        random.seed(len(st.session_state.mejores_terceros)) # Semilla fija por sesión para mantener estabilidad
+        random.shuffle(terceros_candidatos)
         
-        # Asignar equipo A
-        if a_key == "t":
-            if contador < len(st.session_state.orden_terceros):
-                eq_a = st.session_state.orden_terceros[contador]
+        contador = 0
+        llaves_temporales = []
+        cruce_invalido = False
+        
+        for item in estructura_16:
+            a_key, b_key = item["a"], item["b"]
+            
+            # Determinar Equipo A
+            if a_key == "t":
+                eq_a = terceros_candidatos[contador] if contador < len(terceros_candidatos) else "Por definir"
                 contador += 1
             else:
-                eq_a = "Por definir"
-        else:
-            eq_a = clas.get(a_key, "Por definir")
-            
-        # Asignar equipo B
-        if b_key == "t":
-            if contador < len(st.session_state.orden_terceros):
-                eq_b = st.session_state.orden_terceros[contador]
+                eq_a = clas.get(a_key, "Por definir")
+                
+            # Determinar Equipo B
+            if b_key == "t":
+                eq_b = terceros_candidatos[contador] if contador < len(terceros_candidatos) else "Por definir"
                 contador += 1
             else:
-                eq_b = "Por definir"
-        else:
-            eq_b = clas.get(b_key, "Por definir")
+                eq_b = clas.get(b_key, "Por definir")
+                
+            # VALIDACIÓN CLAVE: Si uno es tercero ("t") y el otro es líder ("1x"), verificar que no sean del mismo grupo
+            grupo_a = mapa_equipos_a_grupo.get(eq_a, "")
+            grupo_b = mapa_equipos_a_grupo.get(eq_b, "")
             
-        llaves_16_calculadas.append({"llave": item["llave"], "a": eq_a, "b": eq_b})
+            # Si el cruce involucra un líder de grupo y un tercero, sus grupos de origen deben ser diferentes
+            if a_key.startswith("1") and b_key == "t" and a_key[1:] == grupo_b:
+                cruce_invalido = True
+                break
+            if b_key.startswith("1") and a_key == "t" and b_key[1:] == grupo_a:
+                cruce_invalido = True
+                break
+                
+            llaves_temporales.append({"llave": item["llave"], "a": eq_a, "b": eq_b})
+            
+        # Si el acomodo respeta la regla FIFA, guardamos el resultado y rompemos el bucle de reintentos
+        if not cruce_invalido:
+            llaves_16_calculadas = llaves_temporales
+            break
+            
+        intentos += 1
+        
+    # Plan B de emergencia: Si el shuffle aleatorio se traba, asigna de forma directa segura
+    if not llaves_16_calculadas:
+        llaves_16_calculadas = []
+        contador = 0
+        for item in estructura_16:
+            a_key, b_key = item["a"], item["b"]
+            eq_a = st.session_state.mejores_terceros[contador] if a_key == "t" else clas.get(a_key, "Por definir")
+            if a_key == "t": contador += 1
+            eq_b = st.session_state.mejores_terceros[contador] if b_key == "t" else clas.get(b_key, "Por definir")
+            if b_key == "t": contador += 1
+            llaves_16_calculadas.append({"llave": item["llave"], "a": eq_a, "b": eq_b})
 
 # =====================
 # INTERFAZ LÓGICA DE FASES
