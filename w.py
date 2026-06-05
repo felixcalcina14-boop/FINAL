@@ -268,5 +268,5 @@ if st.session_state.fase == "final":
     )
 
     if st.button("🔄 Crear otro Pronóstico"):
-    st.session_state.clear()
-    st.rerun()
+        st.session_state.clear()
+        st.rerun()
