@@ -194,18 +194,27 @@ elif st.session_state.fase == "16avos de Final":
     else:
         for p in llaves_16_calculadas:
             opciones = [p["a"], p["b"]]
-            ganador_actual = st.session_state.ganadores_16.get(p['llave'], p["a"])
+            
+            # Buscamos el ganador guardado. Si no existe, usamos una clave intermedia para evitar desfases
+            key_radio = f"radio_16_{p['llave']}_{p['a']}_{p['b']}"
+            if key_radio in st.session_state:
+                ganador_actual = st.session_state[key_radio]
+                st.session_state.ganadores_16[p["llave"]] = ganador_actual
+            else:
+                ganador_actual = st.session_state.ganadores_16.get(p['llave'], p["a"])
+            
             idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
             
-            # Cabecera limpia con el nombre del ganador en tiempo real sin banderas
+            # Cabecera ploma que ahora sí lee el estado en tiempo real
             st.markdown(f"""
                 <div style='background-color: #1e293b; padding: 10px 15px; border-radius: 8px 8px 0px 0px; border-left: 5px solid #475569; margin-top: 20px;'>
                     <h4 style='margin: 0; padding: 0; font-size: 1rem; color: #FFD700;'>🏆 Avanza: {ganador_actual}</h4>
                 </div>
             """, unsafe_allow_html=True)
 
-            ganador = st.radio("¿Quién avanza?", opciones, index=idx, key=f"radio_16_{p['llave']}_{p['a']}_{p['b']}")
-            st.session_state.ganadores_16[p["llave"]] = ganador
+            # El truco: Al cambiar el radio button, st.rerun() fuerza la actualización instantánea del texto de arriba
+            st.radio("¿Quién avanza?", opciones, index=idx, key=key_radio, on_change=st.rerun)
+            st.session_state.ganadores_16[p["llave"]] = st.session_state[key_radio]
 
         if st.button("Siguiente: Octavos de Final ➡️"):
             st.session_state.fase = "Octavos de Final"
@@ -222,18 +231,24 @@ elif st.session_state.fase == "Octavos de Final":
             eq_b = st.session_state.ganadores_16.get(item["b"], "Por definir")
             
             opciones = [eq_a, eq_b]
-            ganador_actual = st.session_state.ganadores_8.get(item['llave'], eq_a)
+            key_radio = f"radio_8_{item['llave']}_{eq_a}_{eq_b}"
+            
+            if key_radio in st.session_state:
+                ganador_actual = st.session_state[key_radio]
+                st.session_state.ganadores_8[item["llave"]] = ganador_actual
+            else:
+                ganador_actual = st.session_state.ganadores_8.get(item['llave'], eq_a)
+            
             idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
             
-            # Cabecera limpia sin banderas
             st.markdown(f"""
                 <div style='background-color: #1e293b; padding: 10px 15px; border-radius: 8px 8px 0px 0px; border-left: 5px solid #475569; margin-top: 20px;'>
                     <h4 style='margin: 0; padding: 0; font-size: 1rem; color: #FFD700;'>🏆 Avanza: {ganador_actual}</h4>
                 </div>
             """, unsafe_allow_html=True)
 
-            ganador = st.radio("¿Quién pasa a Cuartos?", opciones, index=idx, key=f"radio_8_{item['llave']}_{eq_a}_{eq_b}")
-            st.session_state.ganadores_8[item["llave"]] = ganador
+            st.radio("¿Quién pasa a Cuartos?", opciones, index=idx, key=key_radio, on_change=st.rerun)
+            st.session_state.ganadores_8[item["llave"]] = st.session_state[key_radio]
 
         if st.button("Siguiente: Cuartos de Final ➡️"):
             st.session_state.fase = "Cuartos de Final"
@@ -250,18 +265,24 @@ elif st.session_state.fase == "Cuartos de Final":
             eq_b = st.session_state.ganadores_8.get(item["b"], "Por definir")
             
             opciones = [eq_a, eq_b]
-            ganador_actual = st.session_state.ganadores_4.get(item['llave'], eq_a)
+            key_radio = f"radio_4_{item['llave']}_{eq_a}_{eq_b}"
+            
+            if key_radio in st.session_state:
+                ganador_actual = st.session_state[key_radio]
+                st.session_state.ganadores_4[item["llave"]] = ganador_actual
+            else:
+                ganador_actual = st.session_state.ganadores_4.get(item['llave'], eq_a)
+            
             idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
             
-            # Cabecera limpia sin banderas
             st.markdown(f"""
                 <div style='background-color: #1e293b; padding: 10px 15px; border-radius: 8px 8px 0px 0px; border-left: 5px solid #475569; margin-top: 20px;'>
                     <h4 style='margin: 0; padding: 0; font-size: 1rem; color: #FFD700;'>🏆 Avanza: {ganador_actual}</h4>
                 </div>
             """, unsafe_allow_html=True)
 
-            ganador = st.radio("¿Quién clasifica a la Semifinal?", opciones, index=idx, key=f"radio_4_{item['llave']}_{eq_a}_{eq_b}")
-            st.session_state.ganadores_4[item["llave"]] = ganador
+            st.radio("¿Quién clasifica a la Semifinal?", opciones, index=idx, key=key_radio, on_change=st.rerun)
+            st.session_state.ganadores_4[item["llave"]] = st.session_state[key_radio]
 
         if st.button("Siguiente: Semifinales ➡️"):
             st.session_state.fase = "Semifinales"
@@ -278,18 +299,24 @@ elif st.session_state.fase == "Semifinales":
             eq_b = st.session_state.ganadores_4.get(item["b"], "Por definir")
             
             opciones = [eq_a, eq_b]
-            ganador_actual = st.session_state.ganadores_2.get(item['llave'], eq_a)
+            key_radio = f"radio_2_{item['llave']}_{eq_a}_{eq_b}"
+            
+            if key_radio in st.session_state:
+                ganador_actual = st.session_state[key_radio]
+                st.session_state.ganadores_2[item["llave"]] = ganador_actual
+            else:
+                ganador_actual = st.session_state.ganadores_2.get(item['llave'], eq_a)
+            
             idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
             
-            # Cabecera limpia sin banderas
             st.markdown(f"""
                 <div style='background-color: #1e293b; padding: 10px 15px; border-radius: 8px 8px 0px 0px; border-left: 5px solid #475569; margin-top: 20px;'>
                     <h4 style='margin: 0; padding: 0; font-size: 1rem; color: #FFD700;'>🏆 Avanza: {ganador_actual}</h4>
                 </div>
             """, unsafe_allow_html=True)
 
-            ganador = st.radio("¿Quién avanza a la Gran Final?", opciones, index=idx, key=f"radio_2_{item['llave']}_{eq_a}_{eq_b}")
-            st.session_state.ganadores_2[item["llave"]] = ganador
+            st.radio("¿Quién avanza a la Gran Final?", opciones, index=idx, key=key_radio, on_change=st.rerun)
+            st.session_state.ganadores_2[item["llave"]] = st.session_state[key_radio]
 
         if st.button("Siguiente: Gran Final ➡️"):
             st.session_state.fase = "Gran Final"
@@ -305,17 +332,24 @@ elif st.session_state.fase == "Gran Final":
         eq_b = st.session_state.ganadores_2.get("d30", "Por definir")
         
         opciones = [eq_a, eq_b]
-        ganador_actual = st.session_state.ganador_final if st.session_state.ganador_final else eq_a
+        key_radio = f"radio_final_{eq_a}_{eq_b}"
+        
+        if key_radio in st.session_state:
+            ganador_actual = st.session_state[key_radio]
+            st.session_state.ganador_final = ganador_actual
+        else:
+            ganador_actual = st.session_state.ganador_final if st.session_state.ganador_final else eq_a
+            
         idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
         
-        # Cabecera limpia destacada en dorado para el campeón sin banderas
         st.markdown(f"""
             <div style='background-color: #1e293b; padding: 10px 15px; border-radius: 8px 8px 0px 0px; border-left: 5px solid #FFD700; margin-top: 20px;'>
                 <h4 style='margin: 0; padding: 0; font-size: 1rem; color: #FFD700;'>👑 Campeón Mundial: {ganador_actual}</h4>
             </div>
         """, unsafe_allow_html=True)
 
-        ganador_final = st.radio("Elige al Campeón del Mundo 2026:", opciones, index=idx, key=f"radio_final_{eq_a}_{eq_b}")
+        st.radio("Elige al Campeón del Mundo 2026:", opciones, index=idx, key=key_radio, on_change=st.rerun)
+        ganador_final = st.session_state[key_radio]
         st.session_state.ganador_final = ganador_final
 
         st.balloons()
