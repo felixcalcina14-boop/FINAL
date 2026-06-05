@@ -270,4 +270,3 @@ if st.session_state.fase == "final":
     
     df_pronostico = pd.DataFrame(datos_pronostico)
     st.dataframe(df_pronostico)
-
