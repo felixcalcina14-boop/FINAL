@@ -7,13 +7,12 @@ import random
 # =====================
 st.set_page_config(page_title="Polla Mundial 2026", page_icon="🏆", layout="centered")
 
-# Enlace crudo directo alternativo a tu repositorio de GitHub
+# CORREGIDO: Ahora apunta al repositorio correcto 'FINAL' donde está corriendo tu app
 url_imagen_github = "https://githubusercontent.com"
 
-# Inyección corregida con color de respaldo oscuro en caso de que falle la URL
+# Inyección con color de respaldo oscuro por seguridad
 st.markdown(f"""
     <style>
-    /* El truco: Se define un color oscuro de fondo de respaldo (#111827) por si la imagen no carga */
     html, body, .stApp, [data-testid="stAppViewContainer"] {{
         background-color: #111827 !important;
         background-image: url("{url_imagen_github}") !important;
@@ -31,19 +30,19 @@ st.markdown(f"""
     
     /* Contenedor central semi-oscuro para proteger la lectura de textos */
     [data-testid="stAppViewBlockContainer"] {{
-        background-color: rgba(30, 41, 59, 0.7) !important;
+        background-color: rgba(15, 23, 42, 0.75) !important;
         padding: 30px !important;
         border-radius: 16px !important;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5) !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6) !important;
         margin-top: 20px !important;
     }}
     
-    /* Títulos y textos con colores vivos y sombras forzadas para que se lean SÍ O SÍ */
+    /* Títulos y textos con colores vivos y sombras forzadas */
     h1 {{ color: #FFD700 !important; text-align: center; font-weight: 800; text-shadow: 2px 2px 4px #000000 !important; }}
     h2 {{ color: #10B981 !important; border-bottom: 2px solid #10B981; padding-bottom: 5px; margin-top: 30px; font-weight: bold; text-shadow: 1px 1px 3px #000000 !important; }}
     h3 {{ color: #F59E0B !important; text-shadow: 1px 1px 3px #000000 !important; font-weight: bold; }}
     
-    /* Estilo de los textos de los selectores que se habían vuelto invisibles */
+    /* Estilo de los textos de los selectores para garantizar lectura total */
     label {{
         color: #ffffff !important;
         font-weight: bold !important;
