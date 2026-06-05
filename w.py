@@ -466,7 +466,8 @@ elif st.session_state.fase == "Gran Final":
         df_pronostico = pd.DataFrame(datos_pronostico)
         st.dataframe(df_pronostico, use_container_width=True)
 
-        csv = df_pronostico.to_csv(index=False).encode('utf-8')
+        csv = df_pronostico.to_csv(index=False, encoding='utf-8-sig')
+
         st.download_button(
             label="📥 Descargar mi Pronóstico en Formato CSV",
             data=csv,
