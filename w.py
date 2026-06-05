@@ -358,7 +358,7 @@ elif st.session_state.fase == "Semifinales":
         banderas = {
             "México": "🇲🇽", "Corea del Sur": "🇰🇷", "Sudáfrica": "🇿🇦", "República checa": "🇨🇿",
             "Canadá": "🇨🇦", "Qatar": "🇶🇦", "Suiza": "🇨🇭", "Bosnia y Herzegovina": "🇧🇦",
-            "Brasil": "🇧🇷", "Marruecos": "🇲🇦", "Haití": "🇭🇹", "Escocia": "🏴\n",
+            "Brasil": "🇧🇷", "Marruecos": "🇲🇦", "Haití": "🇭🇹", "Escocia": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
             "Estados Unidos": "🇺🇸", "Paraguay": "🇵🇾", "Australia": "🇦🇺", "Turquía": "🇹🇷",
             "Alemania": "🇩🇪", "Curazao": "🇨🇼", "Costa de Marfil": "🇨🇮", "Ecuador": "🇪🇨",
             "Países Bajos": "🇳🇱", "Japón": "🇯🇵", "Suecia": "🇸🇪", "Túnez": "🇹🇳",
@@ -367,7 +367,7 @@ elif st.session_state.fase == "Semifinales":
             "Francia": "🇫🇷", "Senegal": "🇸🇳", "Irak": "🇮🇶", "Noruega": "🇳🇴",
             "Argentina": "🇦🇷", "Argelia": "🇩🇿", "Austria": "🇦🇹", "Jordania": "🇯🇴",
             "Portugal": "🇵🇹", "RD Congo": "🇨🇩", "Uzbekistán": "🇺🇿", "Colombia": "🇨🇴",
-            "Inglaterra": "🏴\n", "Croacia": "🇭🇷", "Ghana": "🇬🇭", "Panamá": "🇵🇦",
+            "Inglaterra": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Croacia": "🇭🇷", "Ghana": "🇬🇭", "Panamá": "🇵🇦",
             "Por definir": "🏳️"
         }
 
@@ -384,7 +384,8 @@ elif st.session_state.fase == "Semifinales":
             
             st.markdown(f"**⚔️ {flag_a} {eq_a} vs {eq_b} {flag_b}**")
             st.markdown(f"🔹 *Seleccionado:* {flag_ganador} {ganador_actual}")
- opciones = [eq_a, eq_b]
+            
+            opciones = [eq_a, eq_b]
             idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
             
             ganador = st.radio("¿Quién avanza a la Gran Final?", opciones, index=idx, key=f"radio_2_{item['llave']}_{eq_a}_{eq_b}")
@@ -413,7 +414,7 @@ elif st.session_state.fase == "Gran Final":
             "Francia": "🇫🇷", "Senegal": "🇸🇳", "Irak": "🇮🇶", "Noruega": "🇳🇴",
             "Argentina": "🇦🇷", "Argelia": "🇩🇿", "Austria": "🇦🇹", "Jordania": "🇯🇴",
             "Portugal": "🇵🇹", "RD Congo": "🇨🇩", "Uzbekistán": "🇺🇿", "Colombia": "🇨🇴",
-            "Inglaterra": "🏴\n", "Croacia": "🇭🇷", "Ghana": "🇬🇭", "Panamá": "🇵🇦",
+            "Inglaterra": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Croacia": "🇭🇷", "Ghana": "🇬🇭", "Panamá": "🇵🇦",
             "Por definir": "🏳️"
         }
 
