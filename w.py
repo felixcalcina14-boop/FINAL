@@ -7,31 +7,41 @@ import random
 # =====================
 st.set_page_config(page_title="Polla Mundial 2026", page_icon="🏆", layout="centered")
 
-# Enlace directo a tu imagen .png subida en tu propio repositorio público de GitHub
-# Cambia 'fondo.png' si tu archivo tiene otro nombre (por ejemplo 'mundial.png')
-nombre_imagen = "fondo.png"
-url_imagen_github = f"https://jsdelivr.net{nombre_imagen}"
+# Enlace crudo directo alternativo para garantizar compatibilidad con tu repositorio público
+url_imagen_github = "https://githubusercontent.com"
 
-# Inyección forzada en el contenedor principal usando la URL directa de internet
+# Inyección forzada de transparencia sobre los bloques nativos de Streamlit
 st.markdown(f"""
     <style>
-    [data-testid="stAppViewContainer"] {{
-        background-image: url("{url_imagen_github}");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
+    /* Forzar fondo transparente en todas las capas internas de Streamlit para que dejen pasar la imagen */
+    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"], [data-testid="stMainBlockContainer"] {{
+        background-color: transparent !important;
+        background: transparent !important;
     }}
-    /* Capa sutil semitransparente para que los textos y los botones sigan siendo legibles */
+    
+    /* Aplicar tu imagen .png en el fondo absoluto de la aplicación */
+    html, body, [data-testid="stApp"] {{
+        background-image: url("{url_imagen_github}") !important;
+        background-size: cover !important;
+        background-position: center center !important;
+        background-repeat: no-repeat !important;
+        background-attachment: fixed !important;
+    }}
+    
+    /* Tarjeta o contenedor semi-oscuro para proteger la lectura de textos sobre el fondo de pantalla */
     [data-testid="stAppViewBlockContainer"] {{
-        background-color: rgba(14, 17, 23, 0.85);
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        background-color: rgba(14, 17, 23, 0.88) !important;
+        padding: 30px !important;
+        border-radius: 16px !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.7) !important;
+        margin-top: 20px !important;
     }}
+    
+    /* Configuración visual de textos y botones mundialistas */
     h1 {{ color: #FFD700; text-align: center; font-weight: 800; text-shadow: 2px 2px 4px #000000; }}
     h2 {{ color: #10B981; border-bottom: 2px solid #10B981; padding-bottom: 5px; margin-top: 30px; font-weight: bold; }}
     h3 {{ color: #F59E0B; }}
+    
     div.stButton > button:first-child {{
         background-color: #10B981; color: white; font-weight: bold;
         border-radius: 8px; border: none; padding: 10px 24px;
