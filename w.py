@@ -197,11 +197,10 @@ elif st.session_state.fase == "16avos de Final":
             ganador_actual = st.session_state.ganadores_16.get(p['llave'], p["a"])
             idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
             
-            # Cabecera limpia con el nombre del ganador en tiempo real
-            flag_ganador = banderas.get(ganador_actual, "🏳️")
+            # Cabecera limpia con el nombre del ganador en tiempo real sin banderas
             st.markdown(f"""
                 <div style='background-color: #1e293b; padding: 10px 15px; border-radius: 8px 8px 0px 0px; border-left: 5px solid #475569; margin-top: 20px;'>
-                    <h4 style='margin: 0; padding: 0; font-size: 1rem; color: #FFD700;'>🏆 Avanza: {flag_ganador} {ganador_actual}</h4>
+                    <h4 style='margin: 0; padding: 0; font-size: 1rem; color: #FFD700;'>🏆 Avanza: {ganador_actual}</h4>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -226,10 +225,10 @@ elif st.session_state.fase == "Octavos de Final":
             ganador_actual = st.session_state.ganadores_8.get(item['llave'], eq_a)
             idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
             
-            flag_ganador = banderas.get(ganador_actual, "🏳️")
+            # Cabecera limpia sin banderas
             st.markdown(f"""
                 <div style='background-color: #1e293b; padding: 10px 15px; border-radius: 8px 8px 0px 0px; border-left: 5px solid #475569; margin-top: 20px;'>
-                    <h4 style='margin: 0; padding: 0; font-size: 1rem; color: #FFD700;'>🏆 Avanza: {flag_ganador} {ganador_actual}</h4>
+                    <h4 style='margin: 0; padding: 0; font-size: 1rem; color: #FFD700;'>🏆 Avanza: {ganador_actual}</h4>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -254,10 +253,10 @@ elif st.session_state.fase == "Cuartos de Final":
             ganador_actual = st.session_state.ganadores_4.get(item['llave'], eq_a)
             idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
             
-            flag_ganador = banderas.get(ganador_actual, "🏳️")
+            # Cabecera limpia sin banderas
             st.markdown(f"""
                 <div style='background-color: #1e293b; padding: 10px 15px; border-radius: 8px 8px 0px 0px; border-left: 5px solid #475569; margin-top: 20px;'>
-                    <h4 style='margin: 0; padding: 0; font-size: 1rem; color: #FFD700;'>🏆 Avanza: {flag_ganador} {ganador_actual}</h4>
+                    <h4 style='margin: 0; padding: 0; font-size: 1rem; color: #FFD700;'>🏆 Avanza: {ganador_actual}</h4>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -282,10 +281,10 @@ elif st.session_state.fase == "Semifinales":
             ganador_actual = st.session_state.ganadores_2.get(item['llave'], eq_a)
             idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
             
-            flag_ganador = banderas.get(ganador_actual, "🏳️")
+            # Cabecera limpia sin banderas
             st.markdown(f"""
                 <div style='background-color: #1e293b; padding: 10px 15px; border-radius: 8px 8px 0px 0px; border-left: 5px solid #475569; margin-top: 20px;'>
-                    <h4 style='margin: 0; padding: 0; font-size: 1rem; color: #FFD700;'>🏆 Avanza: {flag_ganador} {ganador_actual}</h4>
+                    <h4 style='margin: 0; padding: 0; font-size: 1rem; color: #FFD700;'>🏆 Avanza: {ganador_actual}</h4>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -309,10 +308,10 @@ elif st.session_state.fase == "Gran Final":
         ganador_actual = st.session_state.ganador_final if st.session_state.ganador_final else eq_a
         idx = opciones.index(ganador_actual) if ganador_actual in opciones else 0
         
-        flag_ganador = banderas.get(ganador_actual, "🏳️")
+        # Cabecera limpia destacada en dorado para el campeón sin banderas
         st.markdown(f"""
             <div style='background-color: #1e293b; padding: 10px 15px; border-radius: 8px 8px 0px 0px; border-left: 5px solid #FFD700; margin-top: 20px;'>
-                <h4 style='margin: 0; padding: 0; font-size: 1rem; color: #FFD700;'>👑 Campeón Mundial: {flag_ganador} {ganador_actual}</h4>
+                <h4 style='margin: 0; padding: 0; font-size: 1rem; color: #FFD700;'>👑 Campeón Mundial: {ganador_actual}</h4>
             </div>
         """, unsafe_allow_html=True)
 
