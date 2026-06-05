@@ -107,7 +107,7 @@ estructura_2 = [
     {"llave": "d30", "a": "d27", "b": "d28"}
 ]
 
-st.markdown("<h1>🏆 POLLA MUNDIALISTA FIFA 2026 🏆</h1>", unsafe_allow_html=True)
+st.markdown("<h1>🏆 POLLA MUNDIAL FIFA 2026 🏆</h1>", unsafe_allow_html=True)
 
 # Pedir nombre de usuario
 if "usuario" not in st.session_state:
