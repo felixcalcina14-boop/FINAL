@@ -1,58 +1,48 @@
 import streamlit as st
 import pandas as pd
 import random
-import base64  # <-- Asegúrate de que esta línea esté para poder leer la imagen
 
 # =====================
 # CONFIGURACIÓN DE PÁGINA Y ESTILOS CSS
 # =====================
 st.set_page_config(page_title="Polla Mundial 2026", page_icon="🏆", layout="centered")
 
-# Función para convertir la imagen local a Base64
-def cargar_fondo(ruta_imagen):
-    with open(ruta_imagen, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read()).decode()
-    return encoded_string
+# Enlace directo a tu imagen .png subida en tu propio repositorio público de GitHub
+# Cambia 'fondo.png' si tu archivo tiene otro nombre (por ejemplo 'mundial.png')
+nombre_imagen = "fondo.png"
+url_imagen_github = f"https://jsdelivr.net{nombre_imagen}"
 
-# Intentar cargar la imagen de fondo de forma segura
-try:
-    fondo_base64 = cargar_fondo("fondo.jpg")  # Cambia 'fondo.jpg' si tu imagen tiene otro nombre o extensión
-    css_fondo = f"""
-    .stApp {{
-        background-image: url("data:image/jpg;base64,{fondo_base64}");
+# Inyección forzada en el contenedor principal usando la URL directa de internet
+st.markdown(f"""
+    <style>
+    [data-testid="stAppViewContainer"] {{
+        background-image: url("{url_imagen_github}");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
         background-attachment: fixed;
     }}
-    """
-except FileNotFoundError:
-    css_fondo = ".stApp { background-color: #0e1117; }"
-
-# Inyección completa de CSS (Fondo + Estilos de tarjetas y botones)
-st.markdown(f"""
-    <style>
-    {css_fondo}
+    /* Capa sutil semitransparente para que los textos y los botones sigan siendo legibles */
+    [data-testid="stAppViewBlockContainer"] {{
+        background-color: rgba(14, 17, 23, 0.85);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }}
     h1 {{ color: #FFD700; text-align: center; font-weight: 800; text-shadow: 2px 2px 4px #000000; }}
-    h2 {{ color: #10B981; border-bottom: 2px solid #10B981; padding-bottom: 5px; margin-top: 30px; font-weight: bold; text-shadow: 1px 1px 2px #000000; }}
-    h3 {{ color: #F59E0B; text-shadow: 1px 1px 2px #000000; }}
+    h2 {{ color: #10B981; border-bottom: 2px solid #10B981; padding-bottom: 5px; margin-top: 30px; font-weight: bold; }}
+    h3 {{ color: #F59E0B; }}
     div.stButton > button:first-child {{
         background-color: #10B981; color: white; font-weight: bold;
         border-radius: 8px; border: none; padding: 10px 24px;
-        transition: all 0.3s ease; width: 100%;
-        margin-top: 20px;
+        transition: all 0.3s ease; width: 100%; margin-top: 20px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     }}
     div.stButton > button:first-child:hover {{
         background-color: #059669; transform: scale(1.02);
     }}
-    /* Estilo sutil para que los cuadros de los partidos resalten sobre tu fondo */
-    [data-testid="stMarkdownContainer"] div {{
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-    }}
     </style>
     """, unsafe_allow_html=True)
-
 
 # =====================
 # DATOS ESTRUCTURALES DEL TORNEO
