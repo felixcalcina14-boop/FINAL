@@ -1,8 +1,7 @@
 import streamlit as st
 import pandas as pd
-import gspread
-from google.oauth2.service_account import Credentials
 import random
+import os
 
 # =====================
 # ESTADO GLOBAL
@@ -11,32 +10,51 @@ if "fase" not in st.session_state:
     st.session_state.fase = "grupos"
 
 # =====================
-# GOOGLE SHEETS
+# FUNCIÓN DE AUXILIO PARA CARGAR DATOS
 # =====================
-scope = [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive"
-]
+def cargar_datos_locales():
+    """Carga los datos desde archivos JSON o CSV en lugar de Google Sheets"""
+    # Intentamos cargar la lista de grupos
+    if os.path.exists("grupos.json"):
+        df_grupos = pd.read_json("grupos.json")
+    elif os.path.exists("grupos.csv"):
+        df_grupos = pd.read_csv("grupos.csv")
+    else:
+        # Datos de simulación por defecto si no encuentra el archivo para que la app no explote
+        st.warning("No se encontró el archivo 'grupos.json' o 'grupos.csv'. Usando datos de prueba.")
+        df_grupos = pd.DataFrame([
+            {"grupo": "a", "equipo": "Ecuador"}, {"grupo": "a", "equipo": "Qatar"}, 
+            {"grupo": "a", "equipo": "Senegal"}, {"grupo": "a", "equipo": "Países Bajos"},
+            {"grupo": "b", "equipo": "Inglaterra"}, {"grupo": "b", "equipo": "Irán"},
+            {"grupo": "b", "equipo": "EEUU"}, {"grupo": "b", "equipo": "Gales"}
+        ])
 
-cred = Credentials.from_service_account_file(
-    "Pronosticos.json",
-    scopes=scope
-)
+    df_grupos.columns = df_grupos.columns.str.strip().str.lower()
+    
+    # Organizar estructura de grupos
+    dict_grupos = {
+        g: df_grupos[df_grupos["grupo"] == g]["equipo"].tolist()
+        for g in df_grupos["grupo"].unique()
+    }
 
-gc = gspread.authorize(cred)
-sh = gc.open("Polla Mundial 2026")
+    # Intentamos cargar la estructura de los 16avos (cruces de llaves)
+    if os.path.exists("emparejamiento16.json"):
+        df_16 = pd.read_json("emparejamiento16.json")
+    elif os.path.exists("emparejamiento16.csv"):
+        df_16 = pd.read_csv("emparejamiento16.csv")
+    else:
+        # Estructura básica de simulación si no está el archivo
+        df_16 = pd.DataFrame([
+            {"llave": "L1", "equipo a": "1a", "equipo b": "t"},
+            {"llave": "L2", "equipo a": "1b", "equipo b": "2a"}
+        ])
+        
+    df_16.columns = df_16.columns.str.strip().str.lower()
+    
+    return dict_grupos, df_16
 
-# =====================
-# LEER GRUPOS
-# =====================
-ws = sh.worksheet("grupos")
-df = pd.DataFrame(ws.get_all_records())
-df.columns = df.columns.str.strip().str.lower()
-
-grupos = {
-    g: df[df["grupo"] == g]["equipo"].tolist()
-    for g in df["grupo"].unique()
-}
+# Carga inicial veloz de datos
+grupos, df16_estructura = cargar_datos_locales()
 
 st.title("🏆 Polla Mundial - Bracket FIFA")
 
@@ -83,7 +101,7 @@ if st.session_state.fase == "grupos":
 
     seleccionados = []
 
-    for i in range(8):
+    for i in range(min(8, len(terceros_pool))):
 
         usados_grupos = [mapa_grupo[e] for e in seleccionados]
 
@@ -93,8 +111,9 @@ if st.session_state.fase == "grupos":
             and mapa_grupo[e] not in usados_grupos
         ]
 
-        elegido = st.selectbox(f"Tercero {i+1}", opciones, key=f"t{i}")
-        seleccionados.append(elegido)
+        if opciones:
+            elegido = st.selectbox(f"Tercero {i+1}", opciones, key=f"t{i}")
+            seleccionados.append(elegido)
 
     st.session_state.mejores_terceros = seleccionados
 
@@ -106,31 +125,33 @@ if st.session_state.fase == "grupos":
         terceros = st.session_state.mejores_terceros.copy()
         random.shuffle(terceros)
 
-        ws_16 = sh.worksheet("emparejamiento16")
-        df16 = pd.DataFrame(ws_16.get_all_records())
-        df16.columns = df16.columns.str.strip().str.lower()
-
         clas = {k.lower(): v for k, v in st.session_state.clasificados.items()}
 
         contador = 0
         llaves = []
 
-        for _, fila in df16.iterrows():
+        for _, fila in df16_estructura.iterrows():
 
             a = str(fila["equipo a"]).lower()
             b = str(fila["equipo b"]).lower()
 
             if a == "t":
-                eq_a = terceros[contador]
-                contador += 1
+                if contador < len(terceros):
+                    eq_a = terceros[contador]
+                    contador += 1
+                else:
+                    eq_a = "Por definir"
             else:
-                eq_a = clas[a]
+                eq_a = clas.get(a, f"Ganador {a}")
 
             if b == "t":
-                eq_b = terceros[contador]
-                contador += 1
+                if contador < len(terceros):
+                    eq_b = terceros[contador]
+                    contador += 1
+                else:
+                    eq_b = "Por definir"
             else:
-                eq_b = clas[b]
+                eq_b = clas.get(b, f"Ganador {b}")
 
             llaves.append({"llave": fila["llave"], "a": eq_a, "b": eq_b})
 
@@ -266,3 +287,4 @@ if st.session_state.fase == "final":
     )
 
     st.success(f"🏆 CAMPEÓN: {ganador}")
+
