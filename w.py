@@ -49,9 +49,10 @@ estructura_4 = [
     {"llave": "d27", "a": "d21", "b": "d22"}, {"llave": "d28", "a": "d23", "b": "d24"}
 ]
 
+# AQUÍ ESTÁ LA CORRECCIÓN CLAVE DE LAS LLAVES SEMIFINALES
 estructura_2 = [
-    {"llave": "d29", "a": "d17", "b": "d18" if "d18" in globals() else "d18"}, # Se calcula dinámicamente abajo
-    {"llave": "d29", "a": "d25", "b": "d26"}, {"llave": "d30", "a": "d27", "b": "d28"}
+    {"llave": "d29", "a": "d25", "b": "d26"}, 
+    {"llave": "d30", "a": "d27", "b": "d28"}
 ]
 
 st.title("🏆 Polla Mundial - Bracket FIFA 2026")
@@ -66,7 +67,7 @@ if st.session_state.usuario == "":
     if st.button("Comenzar"):
         if nombre.strip() != "":
             st.session_state.usuario = nombre.strip()
-            st.rarun() if hasattr(st, "rarun") else st.rerun()
+            st.rerun()
         else:
             st.error("Por favor, introduce un nombre válido.")
     st.stop()
@@ -138,7 +139,8 @@ if st.session_state.fase == "16avos":
     ganadores_16 = {}
 
     for p in st.session_state.llaves_16:
-        ganador = st.radio(f"Llave {p['llave'].upper()}: {p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r16_{p['llave']}")
+        # CORREGIDO: Se removió el texto de la llave en la interfaz gráfica
+        ganador = st.radio(f"{p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r16_{p['llave']}")
         ganadores_16[p["llave"]] = ganador
 
     if st.button("Generar Octavos de Final"):
@@ -161,7 +163,8 @@ if st.session_state.fase == "octavos":
     ganadores_8 = {}
 
     for p in st.session_state.llaves_8:
-        ganador = st.radio(f"Llave {p['llave'].upper()}: {p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r8_{p['llave']}")
+        # CORREGIDO: Se removió el texto de la llave en la interfaz gráfica
+        ganador = st.radio(f"{p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r8_{p['llave']}")
         ganadores_8[p["llave"]] = ganador
 
     if st.button("Generar Cuartos de Final"):
@@ -184,7 +187,8 @@ if st.session_state.fase == "cuartos":
     ganadores_4 = {}
 
     for p in st.session_state.llaves_4:
-        ganador = st.radio(f"Llave {p['llave'].upper()}: {p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r4_{p['llave']}")
+        # CORREGIDO: Se removió el texto de la llave en la interfaz gráfica
+        ganador = st.radio(f"{p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r4_{p['llave']}")
         ganadores_4[p["llave"]] = ganador
 
     if st.button("Generar Semifinales"):
@@ -207,7 +211,8 @@ if st.session_state.fase == "semis":
     ganadores_2 = {}
 
     for p in st.session_state.llaves_2:
-        ganador = st.radio(f"Llave {p['llave'].upper()}: {p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r2_{p['llave']}")
+        # CORREGIDO: Se removió el texto de la llave en la interfaz gráfica
+        ganador = st.radio(f"{p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r2_{p['llave']}")
         ganadores_2[p["llave"]] = ganador
 
     if st.button("Generar Gran Final"):
@@ -221,30 +226,27 @@ if st.session_state.fase == "semis":
         st.rerun()
 
 # =====================
-# GRAN FINAL Y RECOLECCIÓN (PRONOSTICOS)
+# GRAN FINAL Y RECOLECCIÓN
 # =====================
 if st.session_state.fase == "final":
-    st.header("Pestaña Final (d31)")
+    st.header("Gran Final")
     p = st.session_state.llave_final
 
-    ganador_final = st.radio(f"👑 Llave {p['llave'].upper()}: {p['a']} vs {p['b']}", [p["a"], p["b"]], key="final_winner")
+    # CORREGIDO: Se removió el texto de la llave en la interfaz gráfica
+    ganador_final = st.radio(f"{p['a']} vs {p['b']}", [p["a"], p["b"]], key="final_winner")
 
     st.success(f"🏆 ¡EL CAMPEÓN DEL MUNDIAL ES: {ganador_final.upper()}! 🏆")
 
-    # ESTRUCTURACIÓN DE LAS 7 COLUMNAS REQUERIDAS
     st.subheader("📊 Resumen de tu Pronóstico")
     
-    # Columna 2: Clasificados 32 (24 directos + 8 terceros)
     lista_c32 = list(st.session_state.clasificados.values()) + st.session_state.mejores_terceros
     c32_txt = ", ".join(lista_c32)
     
-    # Columnas 3 a 6: Ganadores de cada fase
     g_16_txt = ", ".join(list(st.session_state.ganadores_16.values()))
     g_8_txt = ", ".join(list(st.session_state.ganadores_8.values()))
     g_4_txt = ", ".join(list(st.session_state.ganadores_4.values()))
     g_2_txt = ", ".join(list(st.session_state.ganadores_2.values()))
 
-    # Creación del DataFrame de Pronósticos (Las 7 columnas exactas)
     datos_pronostico = {
         "usuario": [st.session_state.usuario],
         "clasficados32": [c32_txt],
@@ -258,15 +260,10 @@ if st.session_state.fase == "final":
     df_pronostico = pd.DataFrame(datos_pronostico)
     st.dataframe(df_pronostico)
 
-    # BOTÓN PARA DESCARGAR EL PRONÓSTICO EN CSV (Para el usuario)
     csv = df_pronostico.to_csv(index=False).encode('utf-8')
     st.download_button(
-    label="📥 Descargar mi Pronóstico (CSV)",
-    data=csv,
-    file_name=f"pronostico_{st.session_state.usuario}.csv",
-    mime="text/csv"
+        label="📥 Descargar mi Pronóstico (CSV)",
+        data=csv,
+        file_name=f"pronostico_{st.session_state.usuario}.csv",
+        mime="text/csv"
     )
-
-    if st.button("🔄 Crear otro Pronóstico"):
-        st.session_state.clear()
-        st.rerun()
