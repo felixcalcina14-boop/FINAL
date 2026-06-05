@@ -3,12 +3,6 @@ import pandas as pd
 import random
 
 # =====================
-# ESTADO GLOBAL
-# =====================
-if "fase" not in st.session_state:
-    st.session_state.fase = "grupos"
-
-# =====================
 # DATOS DEL MUNDIAL INTEGRADOS
 # =====================
 grupos = {
@@ -66,34 +60,61 @@ if st.session_state.usuario == "":
     if st.button("Comenzar"):
         if nombre.strip() != "":
             st.session_state.usuario = nombre.strip()
+            st.session_state.fase = "Grupos"
             st.rerun()
         else:
             st.error("Por favor, introduce un nombre válido.")
     st.stop()
 
-# BARRA LATERAL CON CONTROL DE NAVEGACIÓN
+# =====================
+# CONTROL DE ESTADOS INICIALES EN BLANCO
+# =====================
+if "ganadores_16" not in st.session_state: st.session_state.ganadores_16 = {}
+if "ganadores_8" not in st.session_state: st.session_state.ganadores_8 = {}
+if "ganadores_4" not in st.session_state: st.session_state.ganadores_4 = {}
+if "ganadores_2" not in st.session_state: st.session_state.ganadores_2 = {}
+if "ganador_final" not in st.session_state: st.session_state.ganador_final = ""
+if "orden_terceros" not in st.session_state: st.session_state.orden_terceros = []
+
+# BARRA LATERAL: INFO Y SELECTOR DE FASES
 st.sidebar.markdown(f"👤 **Usuario:** {st.session_state.usuario}")
+st.sidebar.markdown("---")
+st.sidebar.subheader("⚙️ Navegar por el Torneo")
 
-if st.session_state.fase != "grupos":
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("⚙️ Navegación")
-    if st.sidebar.button("◀️ Volver a Fase de Grupos"):
-        # Limpiamos todo el progreso posterior de las llaves para que no guarde lo anterior
-        claves_a_borrar = [
-            "ganadores_16", "ganadores_8", "ganadores_4", "ganadores_2", 
-            "llaves_16", "llaves_8", "llaves_4", "llaves_2", "llave_final"
-        ]
-        for clave in claves_a_borrar:
-            if clave in st.session_state:
-                del st.session_state[clave]
-        
-        st.session_state.fase = "grupos"
-        st.rerun()
+# Selector que le permite al usuario saltar a cualquier fase libremente
+lista_fases = ["Grupos", "16avos de Final", "Octavos de Final", "Cuartos de Final", "Semifinales", "Gran Final"]
+fase_seleccionada = st.sidebar.radio("Ir a la fase:", lista_fases, index=lista_fases.index(st.session_state.fase))
+st.session_state.fase = fase_seleccionada
 
 # =====================
-# FASE GRUPOS
+# CÁLCULOS EN CADENA (EL CORAZÓN DE LA APLICACIÓN)
 # =====================
-if st.session_state.fase == "grupos":
+
+# 1. Resolver Terceros (Solo se mezclan la primera vez para mantener estabilidad)
+if "clasificados" in st.session_state and "mejores_terceros" in st.session_state:
+    if not st.session_state.orden_terceros or len(st.session_state.orden_terceros) != len(st.session_state.mejores_terceros):
+        st.session_state.orden_terceros = st.session_state.mejores_terceros.copy()
+        random.shuffle(st.session_state.orden_terceros)
+
+# 2. Armar llaves de 16avos de forma dinámica basado en las elecciones actuales de Grupos
+llaves_16_calculadas = []
+if "clasificados" in st.session_state and st.session_state.orden_terceros:
+    clas = {k.lower(): v for k, v in st.session_state.clasificados.items()}
+    contador = 0
+    for item in estructura_16:
+        a_key, b_key = item["a"], item["b"]
+        eq_a = st.session_state.orden_terceros[contador] if a_key == "t" else clas.get(a_key, "Por definir")
+        if a_key == "t": contador += 1
+        eq_b = st.session_state.orden_terceros[contador] if b_key == "t" else clas.get(b_key, "Por definir")
+        if b_key == "t": contador += 1
+        llaves_16_calculadas.append({"llave": item["llave"], "a": eq_a, "b": eq_b})
+
+# =====================
+# VISTA GENERAL DE LAS FASES
+# =====================
+
+# --- FASE GRUPOS ---
+if st.session_state.fase == "Grupos":
     st.header("Fase de Grupos")
     clasificados = {}
     terceros_pool = []
@@ -122,151 +143,151 @@ if st.session_state.fase == "grupos":
             seleccionados.append(elegido)
 
     st.session_state.mejores_terceros = seleccionados
-
-    if st.button("Generar 16avos de Final"):
-        terceros = st.session_state.mejores_terceros.copy()
-        random.shuffle(terceros)
-        
-        clas = {k.lower(): v for k, v in st.session_state.clasificados.items()}
-        contador = 0
-        llaves_16_listas = []
-
-        for item in estructura_16:
-            a_key = item["a"]
-            b_key = item["b"]
-            
-            eq_a = terceros[contador] if a_key == "t" else clas[a_key]
-            if a_key == "t": contador += 1
-                
-            eq_b = terceros[contador] if b_key == "t" else clas[b_key]
-            if b_key == "t": contador += 1
-
-            llaves_16_listas.append({"llave": item["llave"], "a": eq_a, "b": eq_b})
-
-        st.session_state.llaves_16 = llaves_16_listas
-        st.session_state.fase = "16avos"
+    
+    if st.button("Siguiente: 16avos de Final ➡️"):
+        st.session_state.fase = "16avos de Final"
         st.rerun()
 
-# =====================
-# FASE 16AVOS DE FINAL
-# =====================
-if st.session_state.fase == "16avos":
+# --- FASE 16AVOS ---
+elif st.session_state.fase == "16avos de Final":
     st.header("16avos de Final")
-    ganadores_16 = {}
-
-    for p in st.session_state.llaves_16:
-        ganador = st.radio(f"{p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r16_{p['llave']}")
-        ganadores_16[p["llave"]] = ganador
-
-    if st.button("Generar Octavos de Final"):
-        llaves_8_listas = []
-        for item in estructura_8:
-            eq_a = ganadores_16[item["a"]]
-            eq_b = ganadores_16[item["b"]]
-            llaves_8_listas.append({"llave": item["llave"], "a": eq_a, "b": eq_b})
+    if not llaves_16_calculadas:
+        st.warning("⚠️ Primero debes completar la Fase de Grupos.")
+    else:
+        for p in llaves_16_calculadas:
+            # Si el ganador guardado previamente ya no está en la llave por una corrección, se resetea la opción
+            opciones = [p["a"], p["b"]]
+            idx = 0
+            if p['llave'] in st.session_state.ganadores_16 and st.session_state.ganadores_16[p['llave']] in opciones:
+                idx = opciones.index(st.session_state.ganadores_16[p['llave']])
             
-        st.session_state.ganadores_16 = ganadores_16
-        st.session_state.llaves_8 = llaves_8_listas
-        st.session_state.fase = "octavos"
-        st.rerun()
+            ganador = st.radio(f"{p['a']} vs {p['b']}", opciones, index=idx, key=f"radio_16_{p['llave']}")
+            st.session_state.ganadores_16[p["llave"]] = ganador
 
-# =====================
-# FASE OCTAVOS DE FINAL
-# =====================
-if st.session_state.fase == "octavos":
+        if st.button("Siguiente: Octavos de Final ➡️"):
+            st.session_state.fase = "Octavos de Final"
+            st.rerun()
+
+# --- FASE OCTAVOS ---
+elif st.session_state.fase == "Octavos de Final":
     st.header("Octavos de Final")
-    ganadores_8 = {}
+    if not st.session_state.ganadores_16:
+        st.warning("⚠️ Primero debes votar en los 16avos de Final.")
+    else:
+        for item in estructura_8:
+            eq_a = st.session_state.ganadores_16.get(item["a"], "Por definir")
+            eq_b = st.session_state.ganadores_16.get(item["b"], "Por definir")
+            
+            opciones = [eq_a, eq_b]
+            idx = 0
+            if item['llave'] in st.session_state.ganadores_8 and st.session_state.ganadores_8[item['llave']] in opciones:
+                idx = opciones.index(st.session_state.ganadores_8[item['llave']])
 
-    for p in st.session_state.llaves_8:
-        ganador = st.radio(f"{p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r8_{p['llave']}")
-        ganadores_8[p["llave"]] = ganador
+            ganador = st.radio(f"{eq_a} vs {eq_b}", opciones, index=idx, key=f"radio_8_{item['llave']}")
+            st.session_state.ganadores_8[item["llave"]] = ganador
 
-    if st.button("Generar Cuartos de Final"):
-        llaves_4_listas = []
-        for item in estructura_4:
-            eq_a = ganadores_8[item["a"]]
-            eq_b = ganadores_8[item["b"]]
-            llaves_4_listas.append({"llave": item["llave"], "a": eq_a, "b": eq_b})
+        if st.button("Siguiente: Cuartos de Final ➡️"):
+            st.session_state.fase = "Cuartos de Final"
+            st.rerun()
 
-        st.session_state.ganadores_8 = ganadores_8
-        st.session_state.llaves_4 = llaves_4_listas
-        st.session_state.fase = "cuartos"
-        st.rerun()
-
-# =====================
-# FASE CUARTOS DE FINAL
-# =====================
-if st.session_state.fase == "cuartos":
+# --- FASE CUARTOS ---
+elif st.session_state.fase == "Cuartos de Final":
     st.header("Cuartos de Final")
-    ganadores_4 = {}
+    if not st.session_state.ganadores_8:
+        st.warning("⚠️ Primero debes votar en los Octavos de Final.")
+    else:
+        for item in estructura_4:
+            eq_a = st.session_state.ganadores_8.get(item["a"], "Por definir")
+            eq_b = st.session_state.ganadores_8.get(item["b"], "Por definir")
+            
+            opciones = [eq_a, eq_b]
+            idx = 0
+            if item['llave'] in st.session_state.ganadores_4 and st.session_state.ganadores_4[item['llave']] in opciones:
+                idx = opciones.index(st.session_state.ganadores_4[item['llave']])
 
-    for p in st.session_state.llaves_4:
-        ganador = st.radio(f"{p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r4_{p['llave']}")
-        ganadores_4[p["llave"]] = ganador
+            ganador = st.radio(f"{eq_a} vs {eq_b}", opciones, index=idx, key=f"radio_4_{item['llave']}")
+            st.session_state.ganadores_4[item["llave"]] = ganador
 
-    if st.button("Generar Semifinales"):
-        llaves_2_listas = []
-        for item in estructura_2:
-            eq_a = ganadores_4[item["a"]]
-            eq_b = ganadores_4[item["b"]]
-            llaves_2_listas.append({"llave": item["llave"], "a": eq_a, "b": eq_b})
+        if st.button("Siguiente: Semifinales ➡️"):
+            st.session_state.fase = "Semifinales"
+            st.rerun()
 
-        st.session_state.ganadores_4 = ganadores_4
-        st.session_state.llaves_2 = llaves_2_listas
-        st.session_state.fase = "semis"
-        st.rerun()
-
-# =====================
-# FASE SEMIFINALES
-# =====================
-if st.session_state.fase == "semis":
+elif st.session_state.fase == "Semifinales":
     st.header("Semifinales")
-    ganadores_2 = {}
+    if not st.session_state.ganadores_4:
+        st.warning("⚠️ Primero debes votar en los Cuartos de Final.")
+    else:
+        for item in estructura_2:
+            eq_a = st.session_state.ganadores_4.get(item["a"], "Por definir")
+            eq_b = st.session_state.ganadores_4.get(item["b"], "Por definir")
+            
+            opciones = [eq_a, eq_b]
+            idx = 0
+            if item['llave'] in st.session_state.ganadores_2 and st.session_state.ganadores_2[item['llave']] in opciones:
+                idx = opciones.index(st.session_state.ganadores_2[item['llave']])
 
-    for p in st.session_state.llaves_2:
-        ganador = st.radio(f"{p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r2_{p['llave']}")
-        ganadores_2[p["llave"]] = ganador
+            # Clave dinámica única para evitar bloqueos al cambiar de equipos
+            llave_dinamica = f"radio_2_{item['llave']}_{eq_a}_{eq_b}"
+            ganador = st.radio(f"{eq_a} vs {eq_b}", opciones, index=idx, key=llave_dinamica)
+            st.session_state.ganadores_2[item["llave"]] = ganador
 
-    if st.button("Generar Gran Final"):
-        st.session_state.ganadores_2 = ganadores_2
-        st.session_state.llave_final = {
-            "llave": "d31",
-            "a": ganadores_2["d29"],
-            "b": ganadores_2["d30"]
-        }
-        st.session_state.fase = "final"
-        st.rerun()
+        if st.button("Siguiente: Gran Final ➡️"):
+            st.session_state.fase = "Gran Final"
+            st.rerun()
 
-# =====================
-# GRAN FINAL Y RECOLECCIÓN
-# =====================
-if st.session_state.fase == "final":
+# --- FASE GRAN FINAL Y RESUMEN ---
+elif st.session_state.fase == "Gran Final":
     st.header("Gran Final")
-    p = st.session_state.llave_final
+    if not st.session_state.ganadores_2:
+        st.warning("⚠️ Primero debes votar en las Semifinales.")
+    else:
+        eq_a = st.session_state.ganadores_2.get("d29", "Por definir")
+        eq_b = st.session_state.ganadores_2.get("d30", "Por definir")
+        
+        opciones = [eq_a, eq_b]
+        idx = 0
+        if st.session_state.ganador_final in opciones:
+            idx = opciones.index(st.session_state.ganador_final)
 
-    ganador_final = st.radio(f"{p['a']} vs {p['b']}", [p["a"], p["b"]], key="final_winner")
+        # Clave dinámica para la gran final
+        llave_final_dinamica = f"radio_final_{eq_a}_{eq_b}"
+        ganador_final = st.radio(f"{eq_a} vs {eq_b}", opciones, index=idx, key=llave_final_dinamica)
+        st.session_state.ganador_final = ganador_final
 
-    st.success(f"🏆 ¡EL CAMPEÓN DEL MUNDIAL ES: {ganador_final.upper()}! 🏆")
+        st.success(f"🏆 ¡EL CAMPEÓN DEL MUNDIAL ES: {ganador_final.upper()}! 🏆")
 
-    st.subheader("📊 Resumen de tu Pronóstico")
-    
-    lista_c32 = list(st.session_state.clasificados.values()) + st.session_state.mejores_terceros
-    c32_txt = ", ".join(lista_c32)
-    
-    g_16_txt = ", ".join(list(st.session_state.ganadores_16.values()))
-    g_8_txt = ", ".join(list(st.session_state.ganadores_8.values()))
-    g_4_txt = ", ".join(list(st.session_state.ganadores_4.values()))
-    g_2_txt = ", ".join(list(st.session_state.ganadores_2.values()))
+        # CONSTRUCCIÓN DE LA TABLA DE RECOLECCIÓN DE 7 COLUMNAS
+        st.subheader("📊 Tabla Resumen de tu Pronóstico")
+        
+        lista_c32 = list(st.session_state.clasificados.values()) + st.session_state.orden_terceros
+        c32_txt = ", ".join(lista_c32)
+        
+        g_16_txt = ", ".join(list(st.session_state.ganadores_16.values()))
+        g_8_txt = ", ".join(list(st.session_state.ganadores_8.values()))
+        g_4_txt = ", ".join(list(st.session_state.ganadores_4.values()))
+        g_2_txt = ", ".join(list(st.session_state.ganadores_2.values()))
 
-    datos_pronostico = {
-        "usuario": [st.session_state.usuario],
-        "clasficados32": [c32_txt],
-        "ganadores_16avos": [g_16_txt],
-        "ganadores_octavos": [g_8_txt],
-        "ganadores_4tos": [g_4_txt],
-        "Ganadores_semifinales": [g_2_txt],
-        "final": [ganador_final]
-    }
-    
-    df_pronostico = pd.DataFrame(datos_pronostico)
-    st.dataframe(df_pronostico)
+        datos_pronostico = {
+            "usuario": [st.session_state.usuario],
+            "clasficados32": [c32_txt],
+            "ganadores_16avos": [g_16_txt],
+            "ganadores_octavos": [g_8_txt],
+            "ganadores_4tos": [g_4_txt],
+            "Ganadores_semifinales": [g_2_txt],
+            "final": [ganador_final]
+        }
+        
+        df_pronostico = pd.DataFrame(datos_pronostico)
+        st.dataframe(df_pronostico)
+
+        csv = df_pronostico.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Descargar mi Pronóstico (CSV)",
+            data=csv,
+            file_name=f"pronostico_{st.session_state.usuario}.csv",
+            mime="text/csv"
+        )
+
+        if st.button("🔄 Reiniciar todo el Torneo"):
+            st.session_state.clear()
+            st.rerun()
