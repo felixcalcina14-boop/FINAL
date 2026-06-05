@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import random
-import os
 
 # =====================
 # ESTADO GLOBAL
@@ -10,281 +9,264 @@ if "fase" not in st.session_state:
     st.session_state.fase = "grupos"
 
 # =====================
-# FUNCIÓN DE AUXILIO PARA CARGAR DATOS
+# DATOS DEL MUNDIAL INTEGRADOS
 # =====================
-def cargar_datos_locales():
-    """Carga los datos desde archivos JSON o CSV en lugar de Google Sheets"""
-    # Intentamos cargar la lista de grupos
-    if os.path.exists("grupos.json"):
-        df_grupos = pd.read_json("grupos.json")
-    elif os.path.exists("grupos.csv"):
-        df_grupos = pd.read_csv("grupos.csv")
-    else:
-        # Datos de simulación por defecto si no encuentra el archivo para que la app no explote
-        st.warning("No se encontró el archivo 'grupos.json' o 'grupos.csv'. Usando datos de prueba.")
-        df_grupos = pd.DataFrame([
-            {"grupo": "a", "equipo": "Ecuador"}, {"grupo": "a", "equipo": "Qatar"}, 
-            {"grupo": "a", "equipo": "Senegal"}, {"grupo": "a", "equipo": "Países Bajos"},
-            {"grupo": "b", "equipo": "Inglaterra"}, {"grupo": "b", "equipo": "Irán"},
-            {"grupo": "b", "equipo": "EEUU"}, {"grupo": "b", "equipo": "Gales"}
-        ])
+grupos = {
+    "a": ["México", "Corea del Sur", "Sudáfrica", "República checa"],
+    "b": ["Canadá", "Qatar", "Suiza", "Bosnia y Herzegovina"],
+    "c": ["Brasil", "Marruecos", "Haití", "Escocia"],
+    "d": ["Estados Unidos", "Paraguay", "Australia", "Turquía"],
+    "e": ["Alemania", "Curazao", "Costa de Marfil", "Ecuador"],
+    "f": ["Países Bajos", "Japón", "Suecia", "Túnez"],
+    "g": ["Bélgica", "Egipto", "Irán", "Nueva Zelanda"],
+    "h": ["España", "Cabo Verde", "Arabia Saudita", "Uruguay"],
+    "i": ["Francia", "Senegal", "Irak", "Noruega"],
+    "j": ["Argentina", "Argelia", "Austria", "Jordania"],
+    "k": ["Portugal", "RD Congo", "Uzbekistán", "Colombia"],
+    "l": ["Inglaterra", "Croacia", "Ghana", "Panamá"]
+}
 
-    df_grupos.columns = df_grupos.columns.str.strip().str.lower()
-    
-    # Organizar estructura de grupos
-    dict_grupos = {
-        g: df_grupos[df_grupos["grupo"] == g]["equipo"].tolist()
-        for g in df_grupos["grupo"].unique()
-    }
+estructura_16 = [
+    {"llave": "d1", "a": "1e", "b": "t"}, {"llave": "d2", "a": "1i", "b": "t"},
+    {"llave": "d3", "a": "2a", "b": "2b"}, {"llave": "d4", "a": "1f", "b": "2c"},
+    {"llave": "d5", "a": "2k", "b": "2l"}, {"llave": "d6", "a": "1h", "b": "2j"},
+    {"llave": "d7", "a": "1d", "b": "t"}, {"llave": "d8", "a": "1g", "b": "t"},
+    {"llave": "d9", "a": "1c", "b": "2f"}, {"llave": "d10", "a": "2e", "b": "2i"},
+    {"llave": "d11", "a": "1a", "b": "t"}, {"llave": "d12", "a": "1l", "b": "t"},
+    {"llave": "d13", "a": "1j", "b": "2h"}, {"llave": "d14", "a": "2d", "b": "2g"},
+    {"llave": "d15", "a": "1b", "b": "t"}, {"llave": "d16", "a": "1k", "b": "t"}
+]
 
-    # Intentamos cargar la estructura de los 16avos (cruces de llaves)
-    if os.path.exists("emparejamiento16.json"):
-        df_16 = pd.read_json("emparejamiento16.json")
-    elif os.path.exists("emparejamiento16.csv"):
-        df_16 = pd.read_csv("emparejamiento16.csv")
-    else:
-        # Estructura básica de simulación si no está el archivo
-        df_16 = pd.DataFrame([
-            {"llave": "L1", "equipo a": "1a", "equipo b": "t"},
-            {"llave": "L2", "equipo a": "1b", "equipo b": "2a"}
-        ])
-        
-    df_16.columns = df_16.columns.str.strip().str.lower()
-    
-    return dict_grupos, df_16
+estructura_8 = [
+    {"llave": "d17", "a": "d1", "b": "d2"}, {"llave": "d18", "a": "d3", "b": "d4"},
+    {"llave": "d19", "a": "d5", "b": "d6"}, {"llave": "d20", "a": "d7", "b": "d8"},
+    {"llave": "d21", "a": "d9", "b": "d10"}, {"llave": "d22", "a": "d11", "b": "d12"},
+    {"llave": "d23", "a": "d13", "b": "d14"}, {"llave": "d24", "a": "d15", "b": "d16"}
+]
 
-# Carga inicial veloz de datos
-grupos, df16_estructura = cargar_datos_locales()
+estructura_4 = [
+    {"llave": "d25", "a": "d17", "b": "d18"}, {"llave": "d26", "a": "d19", "b": "d20"},
+    {"llave": "d27", "a": "d21", "b": "d22"}, {"llave": "d28", "a": "d23", "b": "d24"}
+]
 
-st.title("🏆 Polla Mundial - Bracket FIFA")
+estructura_2 = [
+    {"llave": "d29", "a": "d17", "b": "d18" if "d18" in globals() else "d18"}, # Se calcula dinámicamente abajo
+    {"llave": "d29", "a": "d25", "b": "d26"}, {"llave": "d30", "a": "d27", "b": "d28"}
+]
+
+st.title("🏆 Polla Mundial - Bracket FIFA 2026")
+
+# Pedir nombre de usuario al inicio y mantenerlo en sesión
+if "usuario" not in st.session_state:
+    st.session_state.usuario = ""
+
+if st.session_state.usuario == "":
+    st.subheader("Configuración Inicial")
+    nombre = st.text_input("Introduce tu nombre para empezar el pronóstico:")
+    if st.button("Comenzar"):
+        if nombre.strip() != "":
+            st.session_state.usuario = nombre.strip()
+            st.rarun() if hasattr(st, "rarun") else st.rerun()
+        else:
+            st.error("Por favor, introduce un nombre válido.")
+    st.stop()
+
+st.sidebar.markdown(f"👤 **Usuario:** {st.session_state.usuario}")
 
 # =====================
 # FASE GRUPOS
 # =====================
 if st.session_state.fase == "grupos":
-
     st.header("Fase de Grupos")
-
     clasificados = {}
     terceros_pool = []
 
     for g, equipos in grupos.items():
-
         st.subheader(f"Grupo {g.upper()}")
-
-        primero = st.selectbox(f"1° {g}", equipos, key=f"p_{g}")
-        segundo = st.selectbox(
-            f"2° {g}",
-            [e for e in equipos if e != primero],
-            key=f"s_{g}"
-        )
-
+        primero = st.selectbox(f"1° {g.upper()}", equipos, key=f"p_{g}")
+        segundo = st.selectbox(f"2° {g.upper()}", [e for e in equipos if e != primero], key=f"s_{g}")
+        
         clasificados[f"1{g}"] = primero
         clasificados[f"2{g}"] = segundo
-
         terceros_pool.extend([e for e in equipos if e not in [primero, segundo]])
 
-    # guardar estado
     st.session_state.clasificados = clasificados
     st.session_state.terceros_pool = terceros_pool
 
-    # =====================
-    # SELECCIÓN 8 TERCEROS (SIN REPETIR GRUPO)
-    # =====================
-    st.header("Mejores terceros")
-
-    mapa_grupo = {}
-    for g, equipos in grupos.items():
-        for e in equipos:
-            if e in terceros_pool:
-                mapa_grupo[e] = g
-
+    st.header("Mejores Terceros")
+    mapa_grupo = {e: g for g, eqs in grupos.items() for e in eqs if e in terceros_pool}
     seleccionados = []
 
-    for i in range(min(8, len(terceros_pool))):
-
+    for i in range(8):
         usados_grupos = [mapa_grupo[e] for e in seleccionados]
-
-        opciones = [
-            e for e in terceros_pool
-            if e not in seleccionados
-            and mapa_grupo[e] not in usados_grupos
-        ]
-
+        opciones = [e for e in terceros_pool if e not in seleccionados and mapa_grupo[e] not in usados_grupos]
         if opciones:
-            elegido = st.selectbox(f"Tercero {i+1}", opciones, key=f"t{i}")
+            elegido = st.selectbox(f"Mejor Tercero {i+1}", opciones, key=f"t{i}")
             seleccionados.append(elegido)
 
     st.session_state.mejores_terceros = seleccionados
 
-    # =====================
-    # BOTÓN GENERAR 16AVOS
-    # =====================
-    if st.button("Generar 16avos"):
-
+    if st.button("Generar 16avos de Final"):
         terceros = st.session_state.mejores_terceros.copy()
         random.shuffle(terceros)
-
+        
         clas = {k.lower(): v for k, v in st.session_state.clasificados.items()}
-
         contador = 0
-        llaves = []
+        llaves_16_listas = []
 
-        for _, fila in df16_estructura.iterrows():
+        for item in estructura_16:
+            a_key = item["a"]
+            b_key = item["b"]
+            
+            eq_a = terceros[contador] if a_key == "t" else clas[a_key]
+            if a_key == "t": contador += 1
+                
+            eq_b = terceros[contador] if b_key == "t" else clas[b_key]
+            if b_key == "t": contador += 1
 
-            a = str(fila["equipo a"]).lower()
-            b = str(fila["equipo b"]).lower()
+            llaves_16_listas.append({"llave": item["llave"], "a": eq_a, "b": eq_b})
 
-            if a == "t":
-                if contador < len(terceros):
-                    eq_a = terceros[contador]
-                    contador += 1
-                else:
-                    eq_a = "Por definir"
-            else:
-                eq_a = clas.get(a, f"Ganador {a}")
-
-            if b == "t":
-                if contador < len(terceros):
-                    eq_b = terceros[contador]
-                    contador += 1
-                else:
-                    eq_b = "Por definir"
-            else:
-                eq_b = clas.get(b, f"Ganador {b}")
-
-            llaves.append({"llave": fila["llave"], "a": eq_a, "b": eq_b})
-
-        st.session_state.llaves_16 = llaves
+        st.session_state.llaves_16 = llaves_16_listas
         st.session_state.fase = "16avos"
         st.rerun()
 
-
 # =====================
-# FUNCIÓN SIGUIENTE FASE
-# =====================
-def generar_siguiente(lista):
-    return [
-        {"a": lista[i], "b": lista[i+1], "llave": f"m{i//2}"}
-        for i in range(0, len(lista), 2)
-    ]
-
-
-# =====================
-# 16AVOS
+# FASE 16AVOS DE FINAL
 # =====================
 if st.session_state.fase == "16avos":
-
-    st.header("16avos")
-
-    ganadores = {}
+    st.header("16avos de Final")
+    ganadores_16 = {}
 
     for p in st.session_state.llaves_16:
+        ganador = st.radio(f"Llave {p['llave'].upper()}: {p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r16_{p['llave']}")
+        ganadores_16[p["llave"]] = ganador
 
-        ganador = st.radio(
-            f"{p['a']} vs {p['b']}",
-            [p["a"], p["b"]],
-            key=f"16_{p['llave']}"
-        )
-
-        ganadores[p["llave"]] = ganador
-
-    if st.button("Generar Octavos"):
-        st.session_state.llaves_8 = generar_siguiente(list(ganadores.values()))
+    if st.button("Generar Octavos de Final"):
+        llaves_8_listas = []
+        for item in estructura_8:
+            eq_a = ganadores_16[item["a"]]
+            eq_b = ganadores_16[item["b"]]
+            llaves_8_listas.append({"llave": item["llave"], "a": eq_a, "b": eq_b})
+            
+        st.session_state.ganadores_16 = ganadores_16
+        st.session_state.llaves_8 = llaves_8_listas
         st.session_state.fase = "octavos"
         st.rerun()
 
-
 # =====================
-# OCTAVOS
+# FASE OCTAVOS DE FINAL
 # =====================
 if st.session_state.fase == "octavos":
-
-    st.header("Octavos")
-
-    ganadores = {}
+    st.header("Octavos de Final")
+    ganadores_8 = {}
 
     for p in st.session_state.llaves_8:
+        ganador = st.radio(f"Llave {p['llave'].upper()}: {p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r8_{p['llave']}")
+        ganadores_8[p["llave"]] = ganador
 
-        ganador = st.radio(
-            f"{p['a']} vs {p['b']}",
-            [p["a"], p["b"]],
-            key=f"8_{p['llave']}"
-        )
+    if st.button("Generar Cuartos de Final"):
+        llaves_4_listas = []
+        for item in estructura_4:
+            eq_a = ganadores_8[item["a"]]
+            eq_b = ganadores_8[item["b"]]
+            llaves_4_listas.append({"llave": item["llave"], "a": eq_a, "b": eq_b})
 
-        ganadores[p["llave"]] = ganador
-
-    if st.button("Generar Cuartos"):
-        st.session_state.llaves_4 = generar_siguiente(list(ganadores.values()))
+        st.session_state.ganadores_8 = ganadores_8
+        st.session_state.llaves_4 = llaves_4_listas
         st.session_state.fase = "cuartos"
         st.rerun()
 
-
 # =====================
-# CUARTOS
+# FASE CUARTOS DE FINAL
 # =====================
 if st.session_state.fase == "cuartos":
-
-    st.header("Cuartos")
-
-    ganadores = {}
+    st.header("Cuartos de Final")
+    ganadores_4 = {}
 
     for p in st.session_state.llaves_4:
+        ganador = st.radio(f"Llave {p['llave'].upper()}: {p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r4_{p['llave']}")
+        ganadores_4[p["llave"]] = ganador
 
-        ganador = st.radio(
-            f"{p['a']} vs {p['b']}",
-            [p["a"], p["b"]],
-            key=f"4_{p['llave']}"
-        )
+    if st.button("Generar Semifinales"):
+        llaves_2_listas = []
+        for item in estructura_2:
+            eq_a = ganadores_4[item["a"]]
+            eq_b = ganadores_4[item["b"]]
+            llaves_2_listas.append({"llave": item["llave"], "a": eq_a, "b": eq_b})
 
-        ganadores[p["llave"]] = ganador
-
-    if st.button("Generar Semis"):
-        st.session_state.llaves_2 = generar_siguiente(list(ganadores.values()))
+        st.session_state.ganadores_4 = ganadores_4
+        st.session_state.llaves_2 = llaves_2_listas
         st.session_state.fase = "semis"
         st.rerun()
 
-
 # =====================
-# SEMIS
+# FASE SEMIFINALES
 # =====================
 if st.session_state.fase == "semis":
-
     st.header("Semifinales")
-
-    ganadores = {}
+    ganadores_2 = {}
 
     for p in st.session_state.llaves_2:
+        ganador = st.radio(f"Llave {p['llave'].upper()}: {p['a']} vs {p['b']}", [p["a"], p["b"]], key=f"r2_{p['llave']}")
+        ganadores_2[p["llave"]] = ganador
 
-        ganador = st.radio(
-            f"{p['a']} vs {p['b']}",
-            [p["a"], p["b"]],
-            key=f"2_{p['llave']}"
-        )
-
-        ganadores[p["llave"]] = ganador
-
-    if st.button("Generar Final"):
-        lista = list(ganadores.values())
-        st.session_state.llave_final = {"a": lista[0], "b": lista[1], "llave": "final"}
+    if st.button("Generar Gran Final"):
+        st.session_state.ganadores_2 = ganadores_2
+        st.session_state.llave_final = {
+            "llave": "d31",
+            "a": ganadores_2["d29"],
+            "b": ganadores_2["d30"]
+        }
         st.session_state.fase = "final"
         st.rerun()
 
-
 # =====================
-# FINAL
+# GRAN FINAL Y RECOLECCIÓN (PRONOSTICOS)
 # =====================
 if st.session_state.fase == "final":
-
-    st.header("Final")
-
+    st.header("Pestaña Final (d31)")
     p = st.session_state.llave_final
 
-    ganador = st.radio(
-        f"{p['a']} vs {p['b']}",
-        [p["a"], p["b"]],
-        key="final"
+    ganador_final = st.radio(f"👑 Llave {p['llave'].upper()}: {p['a']} vs {p['b']}", [p["a"], p["b"]], key="final_winner")
+
+    st.success(f"🏆 ¡EL CAMPEÓN DEL MUNDIAL ES: {ganador_final.upper()}! 🏆")
+
+    # ESTRUCTURACIÓN DE LAS 7 COLUMNAS REQUERIDAS
+    st.subheader("📊 Resumen de tu Pronóstico")
+    
+    # Columna 2: Clasificados 32 (24 directos + 8 terceros)
+    lista_c32 = list(st.session_state.clasificados.values()) + st.session_state.mejores_terceros
+    c32_txt = ", ".join(lista_c32)
+    
+    # Columnas 3 a 6: Ganadores de cada fase
+    g_16_txt = ", ".join(list(st.session_state.ganadores_16.values()))
+    g_8_txt = ", ".join(list(st.session_state.ganadores_8.values()))
+    g_4_txt = ", ".join(list(st.session_state.ganadores_4.values()))
+    g_2_txt = ", ".join(list(st.session_state.ganadores_2.values()))
+
+    # Creación del DataFrame de Pronósticos (Las 7 columnas exactas)
+    datos_pronostico = {
+        "usuario": [st.session_state.usuario],
+        "clasficados32": [c32_txt],
+        "ganadores_16avos": [g_16_txt],
+        "ganadores_octavos": [g_8_txt],
+        "ganadores_4tos": [g_4_txt],
+        "Ganadores_semifinales": [g_2_txt],
+        "final": [ganador_final]
+    }
+    
+    df_pronostico = pd.DataFrame(datos_pronostico)
+    st.dataframe(df_pronostico)
+
+    # BOTÓN PARA DESCARGAR EL PRONÓSTICO EN CSV (Para el usuario)
+    csv = df_pronostico.to_csv(index=False).encode('utf-8')
+    st.download_button(
+    label="📥 Descargar mi Pronóstico (CSV)",
+    data=csv,
+    file_name=f"pronostico_{st.session_state.usuario}.csv",
+    mime="text/csv"
     )
 
-    st.success(f"🏆 CAMPEÓN: {ganador}")
-
+    if st.button("🔄 Crear otro Pronóstico"):
+    st.session_state.clear()
+    st.rerun()
